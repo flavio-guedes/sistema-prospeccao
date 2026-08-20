@@ -962,7 +962,7 @@ function normalizeOpportunity(parsed, query){
   };
 }
 async function researchOpportunity(query){
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
+  const response = await fetch('/api/anthropic', {
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({
       model:'claude-sonnet-4-6', max_tokens:1000,
@@ -997,7 +997,7 @@ Contexto de momentos observados em oportunidades reais: ${ctx || 'nenhum ainda, 
 Para cada ideia, indique quais "momentos" da lista a seguir ela se conecta (isso é usado depois para relacionar a ideia com prospects reais que têm esse momento): ${momentoKeys.join(', ')}.
 
 Responda apenas com um JSON válido, sem texto antes ou depois: [{"titulo":"...","angulo":"...","momentos":["chave1","chave2"]}] com no máximo 6 itens, no máximo 2 momentos por ideia, e as chaves de "momentos" devem vir exatamente da lista acima.`;
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
+  const response = await fetch('/api/anthropic', {
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:1000, messages:[{role:'user', content:prompt}] })
   });
@@ -1591,7 +1591,7 @@ Máximo 1 item por categoria, textos curtos (até 30 palavras).`;
 }
 const GANCHO_CAT_LABEL = {conteudo_recente:'Conteúdo recente', movimento:'Movimento', hipotese_dor:'Hipótese de dor', autoridade:'Autoridade'};
 async function generateGanchos(nome, cargo, empresa){
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
+  const response = await fetch('/api/anthropic', {
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({
       model:'claude-sonnet-4-6', max_tokens:1000,
@@ -1961,6 +1961,73 @@ function init(){
   renderSection();
   loadTheme();
   loadAll();
+}
+
+async function sendEmail(to, subject, body){
+  try{
+    const r = await fetch('/api/send-email', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({to, subject, body})});
+    if(!r.ok) throw new Error('Falha no envio');
+    alert('E-mail enviado.');
+  }catch(e){ alert('Erro ao enviar e-mail: ' + (e.message||e)); }
+}
+async function sendWhatsApp(to, body, groupId){
+  try{
+    const r = await fetch('/api/send-whatsapp', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({to, body, group_id: groupId||null})});
+    if(!r.ok) throw new Error('Falha no envio');
+    alert('WhatsApp enviado.');
+  }catch(e){ alert('Erro ao enviar WhatsApp: ' + (e.message||e)); }
+}
+
+function renderMensagens(el){
+  el.innerHTML = `
+    <div class="eyebrow"><span class="node-dot"></span>Mensagens</div>
+    <div class="front-tabs" id="frontTabs"></div>
+    <div class="front-head">
+      <div class="eyebrow" id="frontEyebrow"></div>
+      <h2 class="display front-title" id="frontTitle" style="text-align:left;"></h2>
+      <p class="front-desc" id="frontDesc"></p>
+      <a href="#" target="_blank" rel="noopener" class="front-link" id="frontLink"></a>
+    </div>
+    <div id="warnBanner"></div>
+    <div id="caseBuilder"></div>
+    <div class="cards" id="cards"></div>
+    <div class="contacts-panel" id="contactsPanel"></div>
+    <div class="contacts-panel" style="margin-top:16px;">
+      <div class="contacts-head"><h3>Disparos</h3></div>
+      <div class="contact-form" style="flex-direction:column;align-items:stretch;">
+        <input type="text" id="dispatchTo" placeholder="E-mail ou WhatsApp, ex: flavio@email.com ou 5521999999999">
+        <button class="btn-primary" id="dispatchEmailBtn">Enviar apresentação por e-mail</button>
+        <button class="btn-primary" id="dispatchWhatsAppBtn" style="background:var(--green);color:var(--void);">Enviar apresentação por WhatsApp</button>
+        <div class="research-log" id="dispatchLog"></div>
+      </div>
+    </div>
+  `;
+  renderFrontTabs();
+  renderMensagensContent();
+  const dispatchTo = document.getElementById('dispatchTo');
+  const emailBtn = document.getElementById('dispatchEmailBtn');
+  const waBtn = document.getElementById('dispatchWhatsAppBtn');
+  const dispatchLog = document.getElementById('dispatchLog');
+  const apCard = document.getElementById('card-apresentacao');
+  const bodyText = apCard ? apCard.querySelector('.card-body').textContent : '';
+  if(emailBtn){
+    emailBtn.addEventListener('click', async ()=>{
+      const to = (dispatchTo.value||'').trim();
+      if(!to){ dispatchTo.focus(); return; }
+      dispatchLog.textContent = 'Enviando e-mail...'; dispatchLog.className='';
+      await sendEmail(to, 'Apresentação', bodyText);
+      dispatchLog.textContent = 'E-mail enviado.'; dispatchLog.className='ok';
+    });
+  }
+  if(waBtn){
+    waBtn.addEventListener('click', async ()=>{
+      const to = (dispatchTo.value||'').trim();
+      if(!to){ dispatchTo.focus(); return; }
+      dispatchLog.textContent = 'Enviando WhatsApp...'; dispatchLog.className='';
+      await sendWhatsApp(to, bodyText, null);
+      dispatchLog.textContent = 'WhatsApp enviado.'; dispatchLog.className='ok';
+    });
+  }
 }
 init();
 

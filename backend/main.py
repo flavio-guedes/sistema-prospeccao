@@ -6,13 +6,17 @@ from typing import Optional, List
 
 app = FastAPI()
 
-ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "") or os.getenv("HERMES_ANTHROPIC_API_KEY", "")
 SMTP_HOST = os.getenv("SMTP_HOST", "")
 SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
 SMTP_USER = os.getenv("SMTP_USER", "")
 SMTP_PASS = os.getenv("SMTP_PASS", "")
 ATZAP_URL = os.getenv("ATZAP_URL", "")
 ATZAP_TOKEN = os.getenv("ATZAP_TOKEN", "")
+LINKEDIN_EMAIL = os.getenv("LINKEDIN_EMAIL", "")
+LINKEDIN_PASSWORD = os.getenv("LINKEDIN_PASSWORD", "")
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
 
 class AnthropicRequest(BaseModel):
     model: str
@@ -31,9 +35,65 @@ class WhatsAppRequest(BaseModel):
     body: str
     group_id: Optional[str] = None
 
+class LinkedInRequest(BaseModel):
+    action: str
+    target: str
+    message: Optional[str] = None
+
+class GoogleRequest(BaseModel):
+    action: str
+    params: Optional[dict] = None
+
+class IntegrationStatusResponse(BaseModel):
+    linkedin: dict
+    google: dict
+    smtp: dict
+    whatsapp: dict
+    anthropic: dict
+
 @app.get("/api/health")
 def health():
     return {"status": "ok"}
+
+@app.get("/api/integrations/status", response_model=IntegrationStatusResponse)
+def integration_status():
+    return {
+        "linkedin": {
+            "configured": bool(LINKEDIN_EMAIL and LINKEDIN_PASSWORD),
+            "email": LINKEDIN_EMAIL or None,
+        },
+        "google": {
+            "configured": bool(GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET),
+            "client_id": GOOGLE_CLIENT_ID or None,
+        },
+        "smtp": {
+            "configured": bool(SMTP_HOST and SMTP_USER and SMTP_PASS),
+            "host": SMTP_HOST or None,
+            "user": SMTP_USER or None,
+        },
+        "whatsapp": {
+            "configured": bool(ATZAP_URL and ATZAP_TOKEN),
+            "url": ATZAP_URL or None,
+        },
+        "anthropic": {
+            "configured": bool(ANTHROPIC_API_KEY),
+            "key_prefix": (ANTHROPIC_API_KEY[:7] + "..." + ANTHROPIC_API_KEY[-4:]) if ANTHROPIC_API_KEY else None,
+        },
+    }
+
+@app.post("/api/integrations/linkedin/action")
+def linkedin_action(req: LinkedInRequest):
+    if not LINKEDIN_EMAIL or not LINKEDIN_PASSWORD:
+        raise HTTPException(status_code=500, detail="LinkedIn credentials missing")
+    # Placeholder for LinkedIn automation
+    return {"status": "queued", "action": req.action, "target": req.target}
+
+@app.post("/api/integrations/google/action")
+def google_action(req: GoogleRequest):
+    if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
+        raise HTTPException(status_code=500, detail="Google credentials missing")
+    # Placeholder for Google Workspace integration
+    return {"status": "queued", "action": req.action, "params": req.params or {}}
 
 @app.post("/api/anthropic")
 def anthropic_proxy(req: AnthropicRequest):

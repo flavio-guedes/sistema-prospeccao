@@ -1,0 +1,1970 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prospect Intelligence — Flávio Guedes</title>
+<style>
+  :root{
+    --void:#050810;
+    --panel:#0A1220;
+    --panel-alt:#0D1830;
+    --panel-line:rgba(99,169,255,0.16);
+    --blue:#2F7FFF;
+    --blue-bright:#6FB1FF;
+    --blue-deep:#0B3B8C;
+    --white:#F3F6FB;
+    --mute:#8996AC;
+    --mute-dim:#5C6880;
+    --green:#3ED598;
+    --purple:#C9A6FF;
+    --orange:#FF8A66;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    background:var(--void);color:var(--white);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .display{
+    font-family:"Arial Narrow","Helvetica Neue Condensed","Roboto Condensed",Arial,sans-serif;
+    font-weight:900;text-transform:uppercase;letter-spacing:-0.01em;
+    transform:scaleX(1.06);transform-origin:left;
+  }
+  a{color:inherit;}
+  button,input,select,textarea{font-family:inherit;}
+  .node-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--blue-bright);box-shadow:0 0 8px 1px var(--blue-bright);margin-right:10px;vertical-align:middle;}
+  .bracket{position:relative;}
+  .bracket::before,.bracket::after{content:"";position:absolute;width:18px;height:18px;border:2px solid var(--blue);opacity:0.8;}
+  .bracket::before{top:-1px;left:-1px;border-right:none;border-bottom:none;}
+  .bracket::after{bottom:-1px;right:-1px;border-left:none;border-top:none;}
+
+  .eyebrow{color:var(--blue-bright);font-size:12px;letter-spacing:0.22em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;}
+  .lede{color:var(--mute);font-size:14.5px;max-width:600px;}
+
+  /* ---------- app shell ---------- */
+  .app{display:flex;min-height:100vh;}
+
+  .rail{
+    width:250px;flex:0 0 250px;border-right:1px solid var(--panel-line);
+    background:var(--panel-alt);display:flex;flex-direction:column;
+    position:sticky;top:0;height:100vh;overflow-y:auto;transition:width 0.2s;
+  }
+  .rail.collapsed{width:64px;flex:0 0 64px;}
+  .rail-head{padding:20px 18px;border-bottom:1px solid var(--panel-line);display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  .rail-brand{font-size:12px;letter-spacing:0.1em;line-height:1.35;}
+  .rail-brand b{color:var(--blue-bright);display:block;}
+  .rail-brand .tag{color:var(--mute-dim);font-size:10px;letter-spacing:0.12em;margin-top:3px;}
+  .rail.collapsed .rail-brand{display:none;}
+  .theme-toggle{
+    background:none;border:1px solid var(--panel-line);color:var(--mute);
+    width:28px;height:28px;flex:0 0 28px;cursor:pointer;font-size:13px;margin-left:6px;
+  }
+  .theme-toggle:hover{color:var(--white);border-color:var(--blue);}
+  .rail-toggle{
+    background:none;border:1px solid var(--panel-line);color:var(--mute);
+    width:28px;height:28px;flex:0 0 28px;cursor:pointer;font-size:13px;
+  }
+  .rail-toggle:hover{color:var(--white);border-color:var(--blue);}
+  .rail-group{padding:16px 0 4px;}
+  .rail-group-label{padding:0 18px 8px;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--mute-dim);}
+  .rail.collapsed .rail-group-label{display:none;}
+  .rail-item{
+    display:flex;align-items:center;gap:12px;width:100%;padding:10px 18px;
+    background:none;border:none;border-left:2px solid transparent;
+    color:var(--mute);font-size:13.5px;cursor:pointer;text-align:left;
+  }
+  .rail-item:hover{color:var(--white);background:rgba(99,169,255,0.05);}
+  .rail-item.active{color:var(--white);border-left-color:var(--blue);background:rgba(47,127,255,0.08);font-weight:600;}
+  .rail-item .ic{width:16px;text-align:center;color:var(--blue-deep);flex:0 0 16px;font-size:14px;}
+  .rail-item.active .ic{color:var(--blue-bright);}
+  .rail-item .rn{color:var(--mute-dim);font-size:10.5px;}
+  .rail.collapsed .rail-item{justify-content:center;padding:12px 0;}
+  .rail.collapsed .rail-item .lbl,.rail.collapsed .rail-item .rn{display:none;}
+
+  .mobile-topbar{display:none;}
+  .rail-backdrop{display:none;}
+  .rail-backdrop.show{display:block;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:90;}
+
+  .main-area{flex:1;min-width:0;padding:40px 44px 90px;max-width:1080px;}
+
+  @media(max-width:900px){
+    .app{flex-direction:column;}
+    .rail{position:fixed;left:0;top:0;height:100vh;z-index:100;transform:translateX(-100%);transition:transform 0.2s;width:270px;}
+    .rail.mobile-open{transform:translateX(0);}
+    .mobile-topbar{
+      display:flex;align-items:center;gap:14px;padding:16px 20px;
+      border-bottom:1px solid var(--panel-line);position:sticky;top:0;
+      background:rgba(5,8,16,0.94);z-index:50;backdrop-filter:blur(10px);
+    }
+    .mobile-topbar .rail-brand{font-size:12.5px;}
+    .main-area{padding:24px 18px 60px;}
+  }
+
+  /* ---------- generic controls ---------- */
+  .btn-primary{background:var(--blue);color:var(--void);border:none;padding:12px 22px;font-size:13.5px;font-weight:700;cursor:pointer;}
+  .btn-primary:hover{background:var(--blue-bright);}
+  .btn-primary:disabled{opacity:0.5;cursor:not-allowed;}
+  .front-link{display:inline-flex;align-items:center;gap:8px;margin-top:14px;font-size:13px;color:var(--blue-bright);border:1px solid var(--panel-line);padding:8px 14px;}
+  .front-link:hover{border-color:var(--blue);}
+
+  /* ---------- home / inteligência ---------- */
+  .intel-hero{border:1px solid var(--panel-line);background:var(--panel);padding:38px;margin-bottom:32px;}
+  .intel-hero h2{font-size:clamp(22px,3vw,30px);margin-bottom:10px;text-align:left;}
+  .intel-hero p{color:var(--mute);margin-bottom:20px;max-width:580px;font-size:14.5px;}
+  .research-form{display:flex;flex-direction:column;gap:10px;max-width:640px;}
+  .research-form textarea{
+    background:var(--void);border:1px solid var(--panel-line);color:var(--white);
+    padding:12px 14px;font-size:13.5px;min-height:80px;resize:vertical;
+  }
+  .research-form textarea:focus{outline:none;border-color:var(--blue);}
+  .hint{color:var(--mute-dim);font-size:11.5px;}
+  .research-log{margin-top:10px;font-size:12.5px;color:var(--mute);display:flex;flex-direction:column;gap:4px;}
+  .research-log .err{color:var(--orange);}
+  .research-log .ok{color:var(--green);}
+
+  .stat-row{display:flex;gap:1px;background:var(--panel-line);border:1px solid var(--panel-line);margin-bottom:32px;flex-wrap:wrap;}
+  .stat-box{flex:1;min-width:120px;background:var(--panel);padding:18px;}
+  .stat-box .num{font-family:"Arial Narrow",Arial,sans-serif;font-weight:900;font-size:26px;color:var(--blue-bright);}
+  .stat-box .lbl{color:var(--mute);font-size:11.5px;margin-top:4px;}
+
+  .action-list{border:1px solid var(--panel-line);background:var(--panel);margin-bottom:32px;}
+  .action-row{display:flex;gap:14px;align-items:flex-start;padding:14px 20px;border-bottom:1px solid var(--panel-line);font-size:13.5px;}
+  .action-row:last-child{border-bottom:none;}
+  .action-n{font-family:"Arial Narrow",Arial,sans-serif;font-weight:900;color:var(--blue-deep);font-size:15px;min-width:24px;}
+  .signal-tag{font-size:10.5px;padding:4px 8px;border:1px solid var(--panel-line);color:var(--blue-bright);white-space:nowrap;}
+  .signal-meta{color:var(--mute-dim);font-size:11.5px;margin-top:4px;}
+  .contact-empty{padding:22px 20px;color:var(--mute-dim);font-size:13.5px;}
+
+  /* ---------- opportunity cards ---------- */
+  .opp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px;margin-bottom:32px;}
+  .opp-card{border:1px solid var(--panel-line);background:var(--panel);padding:20px;display:flex;flex-direction:column;gap:10px;}
+  .opp-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+  .opp-card h4{font-size:15px;}
+  .opp-card .setor{color:var(--mute);font-size:12px;}
+  .fit-badge{font-family:"Arial Narrow",Arial,sans-serif;font-weight:900;font-size:15px;color:var(--blue-bright);border:1px solid rgba(111,177,255,0.4);padding:4px 8px;white-space:nowrap;}
+  .resumo{color:var(--mute);font-size:13px;}
+  .opp-tags{display:flex;gap:6px;flex-wrap:wrap;}
+  .opp-tag{font-size:10.5px;color:var(--mute);border:1px solid var(--panel-line);padding:3px 7px;}
+  .opp-actions{display:flex;gap:8px;margin-top:auto;flex-wrap:wrap;}
+  .opp-detail{border-top:1px solid var(--panel-line);margin-top:8px;padding-top:10px;display:flex;flex-direction:column;gap:8px;}
+  .sinal-item{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;color:var(--mute);}
+  .sinal-item input{margin-top:3px;}
+  .sinal-item.done{opacity:0.5;text-decoration:line-through;}
+  .sinal-item a{color:var(--blue-bright);}
+
+  /* ---------- radar filters ---------- */
+  .filter-group{margin-bottom:16px;}
+  .filter-group-label{font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--mute-dim);margin-bottom:8px;}
+  .chip-row{display:flex;gap:8px;flex-wrap:wrap;}
+  .filter-chip{font-size:12px;padding:6px 12px;border:1px solid var(--panel-line);color:var(--mute);background:none;cursor:pointer;}
+  .filter-chip.on{color:var(--blue-bright);border-color:var(--blue);background:rgba(47,127,255,0.08);}
+
+  /* ---------- mini buttons / badges ---------- */
+  .mini-btn{background:none;border:1px solid var(--panel-line);color:var(--mute);font-size:12px;padding:6px 10px;cursor:pointer;}
+  .mini-btn:hover{color:var(--white);border-color:var(--blue);}
+  .mini-btn.active-btn{color:var(--blue-bright);border-color:var(--blue);}
+  .mini-btn.danger:hover{color:var(--orange);border-color:var(--orange);}
+  .active-tag{font-size:10.5px;color:var(--void);background:var(--blue-bright);padding:2px 7px;letter-spacing:0.06em;text-transform:uppercase;margin-left:8px;}
+
+  /* ---------- contacts panel (reused everywhere) ---------- */
+  .contacts-panel{border:1px solid var(--panel-line);background:var(--panel);margin-top:20px;}
+  .contacts-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:18px 22px;border-bottom:1px solid var(--panel-line);}
+  .contacts-head h3{font-size:13px;letter-spacing:0.1em;text-transform:uppercase;}
+  .stat-chips{display:flex;gap:10px;flex-wrap:wrap;}
+  .stat-chip{font-size:11.5px;color:var(--mute);border:1px solid var(--panel-line);padding:5px 10px;white-space:nowrap;}
+  .stat-chip b{color:var(--blue-bright);}
+  .contact-form{display:flex;gap:10px;padding:18px 22px;border-bottom:1px solid var(--panel-line);flex-wrap:wrap;}
+  .contact-form input,.contact-form select{
+    background:var(--void);border:1px solid var(--panel-line);color:var(--white);
+    padding:10px 12px;font-size:13.5px;flex:1;min-width:140px;
+  }
+  .contact-form input:focus,.contact-form select:focus{outline:none;border-color:var(--blue);}
+  .contact-form button{background:var(--blue);color:var(--void);border:none;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;}
+  .contact-form button:hover{background:var(--blue-bright);}
+  .contact-list{padding:6px 0;}
+  .contact-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 22px;border-bottom:1px solid var(--panel-line);}
+  .contact-row:last-child{border-bottom:none;}
+  .contact-row.is-active{background:rgba(47,127,255,0.07);}
+  .contact-main{flex:1;min-width:150px;}
+  .contact-name{font-size:14px;font-weight:600;}
+  .contact-empresa{color:var(--mute);font-size:12.5px;}
+  .status-badge,.nivel-badge{font-size:11px;letter-spacing:0.04em;padding:4px 9px;border:1px solid var(--panel-line);white-space:nowrap;}
+  .status-nao_enviado{color:var(--mute);}
+  .status-apresentacao,.status-follow1{color:var(--blue-bright);border-color:rgba(111,177,255,0.4);}
+  .status-follow2{color:#F5B15A;border-color:rgba(245,177,90,0.4);}
+  .status-respondeu{color:var(--green);border-color:rgba(62,213,152,0.4);}
+  .nivel-leve{color:var(--mute);}
+  .nivel-consultivo{color:var(--purple);border-color:rgba(201,166,255,0.4);}
+  .nivel-aguardar{color:var(--orange);border-color:rgba(255,138,102,0.4);}
+  .due-badge{font-size:11px;color:var(--orange);border:1px solid rgba(255,138,102,0.4);padding:4px 9px;white-space:nowrap;}
+  .last-sent{color:var(--mute-dim);font-size:11.5px;white-space:nowrap;}
+  .contact-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .contact-actions select{background:var(--void);color:var(--white);border:1px solid var(--panel-line);font-size:12px;padding:6px 8px;}
+
+  .checklist-block{width:100%;border:1px solid var(--panel-line);padding:14px;margin-top:4px;}
+  .checklist-title{font-size:11.5px;color:var(--mute-dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;}
+  .check-row{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;color:var(--mute);margin-bottom:8px;cursor:pointer;}
+  .check-row input{margin-top:2px;}
+  .nivel-preview{font-size:12.5px;margin-top:6px;padding-top:10px;border-top:1px solid var(--panel-line);}
+  .nivel-preview b{color:var(--blue-bright);}
+
+  .warn-banner{border:1px solid rgba(255,138,102,0.4);background:rgba(255,138,102,0.06);color:var(--orange);padding:14px 18px;font-size:13px;margin-bottom:16px;}
+  .case-builder{border:1px solid var(--panel-line);background:var(--panel);padding:20px;margin-bottom:20px;}
+  .case-builder h4{font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:var(--blue-bright);margin-bottom:12px;}
+  .case-field{margin-bottom:14px;}
+  .case-field label{display:block;font-size:12px;color:var(--mute);margin-bottom:6px;}
+  .case-field textarea{width:100%;background:var(--void);border:1px solid var(--panel-line);color:var(--white);padding:10px 12px;font-size:13px;min-height:60px;resize:vertical;}
+  .case-field textarea:focus{outline:none;border-color:var(--blue);}
+
+  /* ---------- messages cards ---------- */
+  .front-tabs{display:flex;gap:8px;overflow-x:auto;margin-bottom:26px;padding-bottom:4px;}
+  .front-chip{flex:0 0 auto;padding:9px 14px;border:1px solid var(--panel-line);color:var(--mute);font-size:12.5px;white-space:nowrap;background:none;cursor:pointer;}
+  .front-chip.active{color:var(--white);border-color:var(--blue);background:rgba(47,127,255,0.1);}
+  .front-chip.special{color:var(--blue-bright);}
+  .front-head{margin-bottom:24px;}
+  .front-title{font-size:clamp(22px,3vw,30px);margin-bottom:8px;}
+  .front-desc{color:var(--mute);font-size:14px;max-width:600px;}
+  .cards{display:flex;flex-direction:column;gap:20px;margin-bottom:8px;}
+  .card{background:var(--panel);border:1px solid var(--panel-line);}
+  .card-head{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid var(--panel-line);flex-wrap:wrap;gap:8px;}
+  .card-head h3{font-size:13px;letter-spacing:0.1em;text-transform:uppercase;}
+  .card-head h3 span{color:var(--blue-bright);}
+  .copy-btn{display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--blue);color:var(--void);border:none;font-size:13px;font-weight:700;cursor:pointer;}
+  .copy-btn:hover{background:var(--blue-bright);}
+  .copy-btn.copied{background:var(--green);color:var(--void);}
+  .card-body{padding:22px;white-space:pre-wrap;color:var(--white);font-size:14.5px;line-height:1.7;}
+
+  /* ---------- kanban ---------- */
+  .kanban{display:flex;gap:1px;background:var(--panel-line);border:1px solid var(--panel-line);overflow-x:auto;}
+  .kcol{flex:1;min-width:190px;background:var(--panel);}
+  .kcol-head{padding:14px 16px;border-bottom:1px solid var(--panel-line);font-size:11.5px;letter-spacing:0.06em;text-transform:uppercase;color:var(--mute);}
+  .kcol-head b{color:var(--blue-bright);}
+  .kcard{margin:10px;padding:12px;border:1px solid var(--panel-line);background:var(--void);font-size:12.5px;cursor:pointer;}
+  .kcard:hover{border-color:var(--blue);}
+  .kname{font-weight:600;color:var(--white);}
+  .kmeta{color:var(--mute-dim);font-size:11px;margin-top:3px;}
+
+  /* ---------- warm-up ---------- */
+  .warm-checks{display:flex;gap:14px;flex-wrap:wrap;}
+  .warm-checks label{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--mute);cursor:pointer;}
+
+  /* ---------- content ideas ---------- */
+  .idea-card{border:1px solid var(--panel-line);background:var(--panel);padding:16px 18px;margin-bottom:10px;}
+  .idea-card h5{font-size:14px;margin-bottom:6px;}
+  .idea-card p{color:var(--mute);font-size:13px;}
+
+  /* ---------- canais ---------- */
+  .canal-card{border:1px solid var(--panel-line);background:var(--panel);padding:22px;margin-bottom:14px;}
+  .canal-card h4{font-size:15px;margin-bottom:6px;}
+  .canal-card p{color:var(--mute);font-size:13.5px;margin-bottom:10px;}
+  .section-sub{font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:var(--mute-dim);margin:32px 0 14px;}
+  .channel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;}
+  .channel-card{border:1px solid var(--panel-line);background:var(--panel);padding:18px;display:flex;flex-direction:column;gap:10px;}
+  .channel-card h5{font-size:14px;}
+  .channel-block-label{font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;color:var(--blue-bright);margin-bottom:4px;}
+  .channel-block p{color:var(--mute);font-size:12.5px;}
+  .channel-block ul{list-style:none;display:flex;flex-direction:column;gap:3px;}
+  .channel-block li{color:var(--mute);font-size:12.5px;padding-left:12px;position:relative;}
+  .channel-block li::before{content:"·";position:absolute;left:0;color:var(--blue-deep);}
+
+  /* ---------- funil aquecimento ---------- */
+  .funnel-row{display:flex;gap:10px;align-items:stretch;margin-bottom:28px;flex-wrap:wrap;}
+  .funnel-step{flex:1;min-width:110px;border:1px solid var(--panel-line);background:var(--panel);padding:14px 12px;text-align:center;}
+  .funnel-step .fn-num{font-family:"Arial Narrow",Arial,sans-serif;font-weight:900;font-size:22px;color:var(--blue-bright);}
+  .funnel-step .fn-lbl{color:var(--mute);font-size:11px;text-transform:uppercase;letter-spacing:0.06em;margin-top:4px;}
+  .funnel-arrow{display:flex;align-items:center;color:var(--mute-dim);font-size:16px;flex:0 0 auto;}
+  @media(max-width:900px){ .funnel-arrow{display:none;} }
+  .nivel-pill{font-size:10.5px;padding:3px 8px;border:1px solid var(--panel-line);color:var(--mute);white-space:nowrap;}
+
+  /* ---------- ganchos ---------- */
+  .gancho-card{border:1px solid var(--panel-line);background:var(--panel);padding:18px 20px;margin-bottom:12px;}
+  .gancho-cat{font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;color:var(--blue-bright);margin-bottom:6px;}
+  .gancho-titulo{font-size:14.5px;font-weight:600;margin-bottom:6px;}
+  .gancho-texto{color:var(--mute);font-size:13px;}
+
+  /* ---------- plano de prospecção ---------- */
+  .plano-card{border:1px solid var(--panel-line);background:var(--panel);padding:28px;margin-bottom:32px;}
+  .plano-row{display:flex;gap:8px 24px;flex-wrap:wrap;margin-bottom:16px;}
+  .plano-block{flex:1;min-width:200px;}
+  .plano-block .pb-lbl{font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;color:var(--mute-dim);margin-bottom:6px;}
+  .plano-block .pb-val{font-size:13.5px;color:var(--white);}
+  .plano-nums{display:flex;gap:1px;background:var(--panel-line);border:1px solid var(--panel-line);margin:18px 0;flex-wrap:wrap;}
+  .plano-num-box{flex:1;min-width:110px;background:var(--void);padding:14px;text-align:center;}
+  .plano-num-box .num{font-family:"Arial Narrow",Arial,sans-serif;font-weight:900;font-size:22px;color:var(--blue-bright);}
+  .plano-num-box .lbl{color:var(--mute);font-size:10.5px;margin-top:3px;text-transform:uppercase;}
+  .canal-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:12px;color:var(--mute);}
+  .canal-bar-name{width:80px;flex:0 0 80px;}
+  .canal-bar-track{flex:1;height:8px;background:var(--void);border:1px solid var(--panel-line);}
+  .canal-bar-fill{height:100%;background:var(--blue);}
+
+  /* ---------- modal: painel do prospect ---------- */
+  .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(2,4,10,0.72);z-index:200;padding:26px;overflow-y:auto;}
+  .modal-backdrop.show{display:flex;justify-content:center;align-items:flex-start;}
+  .modal-panel{background:var(--panel);border:1px solid var(--panel-line);max-width:620px;width:100%;margin:20px auto;padding:0;}
+  .modal-head{padding:22px 26px;border-bottom:1px solid var(--panel-line);display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+  .modal-head h3{font-size:19px;}
+  .modal-head .sub{color:var(--mute);font-size:13px;margin-top:4px;}
+  .modal-close{background:none;border:1px solid var(--panel-line);color:var(--mute);width:30px;height:30px;flex:0 0 30px;cursor:pointer;font-size:14px;}
+  .modal-close:hover{color:var(--white);border-color:var(--blue);}
+  .modal-body{padding:22px 26px;display:flex;flex-direction:column;gap:22px;max-height:70vh;overflow-y:auto;}
+  .modal-stats{display:flex;gap:1px;background:var(--panel-line);border:1px solid var(--panel-line);}
+  .modal-stat{flex:1;background:var(--void);padding:12px;text-align:center;}
+  .modal-stat .v{font-family:"Arial Narrow",Arial,sans-serif;font-weight:900;font-size:16px;color:var(--blue-bright);}
+  .modal-stat .k{color:var(--mute-dim);font-size:10px;text-transform:uppercase;margin-top:3px;}
+  .modal-section-lbl{font-size:10.5px;letter-spacing:0.12em;text-transform:uppercase;color:var(--mute-dim);margin-bottom:8px;}
+  .modal-list{display:flex;flex-direction:column;gap:8px;}
+  .modal-list-item{font-size:12.5px;color:var(--mute);display:flex;gap:8px;}
+  .modal-list-item b{color:var(--white);}
+  .modal-tags{display:flex;flex-wrap:wrap;gap:6px;}
+  .modal-actions{display:flex;flex-wrap:wrap;gap:8px;padding:18px 26px;border-top:1px solid var(--panel-line);}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="mobile-topbar">
+    <button class="rail-toggle" id="hamburger">☰</button>
+    <div class="rail-brand"><b>PROSPECT INTELLIGENCE</b></div>
+  </div>
+  <div class="rail-backdrop" id="railBackdrop"></div>
+  <nav class="rail" id="rail"></nav>
+  <main class="main-area" id="mainArea"></main>
+</div>
+<div class="modal-backdrop" id="prospectModalBackdrop">
+  <div class="modal-panel" id="prospectModalPanel"></div>
+</div>
+
+<script>
+// =========================================================
+// CONSTANTS
+// =========================================================
+const NAME = "[Nome]";
+const FOLLOWUP_DUE_DAYS = 4;
+const STAGES = ['nao_enviado','apresentacao','follow1','follow2','respondeu'];
+const STAGE_LABEL = {
+  nao_enviado:'Não enviado', apresentacao:'Apresentação enviada',
+  follow1:'Follow-up 1 enviado', follow2:'Follow-up 2 enviado', respondeu:'Respondeu'
+};
+const NIVEL_LABEL = {leve:'Leve', consultivo:'Consultivo', aguardar:'Aguardar melhor momento'};
+const CHECKLIST_QUESTIONS = [
+  {key:'fit', label:'Fit real: a empresa se beneficia claramente do que você faz?'},
+  {key:'acesso', label:'Acesso ao decisor: você fala direto com quem decide?'},
+  {key:'sinal', label:'Sinal visível: dá pra observar algo concreto em uns 15 a 20 minutos?'},
+  {key:'tempo', label:'Tempo disponível: você tem tempo livre essa semana?'}
+];
+const SEGMENTOS = ['Educação','Saúde','Tecnologia','Financeiro','Varejo','Imobiliário','B2B','SaaS','Indústria','Serviços'];
+const PERFIS = ['CEO','CMO','Diretor de Marketing','Head de Marketing','Head de Conteúdo','Diretor de Criação','Head de Growth','Founder','RH / People'];
+const MOMENTOS = ['Contratando','Crescendo','Lançando produto','Mudando posicionamento','Investindo em mídia','Estruturando IA','Criando área de conteúdo','Abrindo unidades','Recebendo investimento'];
+const MOMENTO_LABEL = {
+  contratacao:'Contratando', crescimento:'Crescendo', lancamento_produto:'Lançando produto',
+  mudanca_posicionamento:'Mudando posicionamento', investimento_midia:'Investindo em mídia',
+  estruturando_ia:'Estruturando IA', criando_conteudo:'Criando área de conteúdo',
+  expansao:'Abrindo unidades', investimento_captado:'Recebendo investimento', outro:null
+};
+const NAV_ITEMS = [
+  {id:'inteligencia', n:'01', label:'Inteligência', icon:'◎'},
+  {id:'radar', n:'02', label:'Radar', icon:'⌁'},
+  {id:'canais', n:'03', label:'Canais', icon:'◉'},
+  {id:'prospects', n:'04', label:'Prospects', icon:'◌'},
+  {id:'aquecimento', n:'05', label:'Aquecimento', icon:'◇'},
+  {id:'ganchos', n:'06', label:'Ganchos', icon:'⚡'},
+  {id:'conteudo', n:'07', label:'Conteúdo', icon:'✦'},
+  {id:'mensagens', n:'08', label:'Mensagens', icon:'↗'},
+  {id:'pipeline', n:'09', label:'Pipeline', icon:'▣'}
+];
+const NAV_GROUPS = [
+  {label:'Discover', items:['inteligencia','radar','canais']},
+  {label:'Engage', items:['prospects','aquecimento','ganchos','conteudo']},
+  {label:'Convert', items:['mensagens','pipeline']}
+];
+
+// =========================================================
+// MAPA DE CANAIS (Etapa 2.1)
+// =========================================================
+const CHANNEL_MAP = [
+  { nome:'LinkedIn', objetivo:'Relacionamento + autoridade',
+    sinais:['Mudança de cargo','Contratação aberta','Post sobre dor do negócio','Lançamento de produto','Rodada de investimento'],
+    acoes:['Comentar','Acompanhar','Publicar','Conectar','Abordar'] },
+  { nome:'YouTube', objetivo:'Entender discurso público e posicionamento',
+    sinais:['Vídeo institucional novo','Entrevista com liderança','Série de conteúdo lançada'],
+    acoes:['Assistir e anotar temas','Comentar','Citar em abordagem'] },
+  { nome:'Instagram', objetivo:'Ler cultura, bastidor e tom de marca',
+    sinais:['Campanha nova no ar','Evento interno divulgado','Novo time apresentado'],
+    acoes:['Acompanhar stories','Curtir','Comentar com contexto'] },
+  { nome:'Sites', objetivo:'Confirmar dado factual e institucional',
+    sinais:['Página "carreiras" atualizada','Novo produto no site','Release de imprensa'],
+    acoes:['Ler página institucional','Checar vagas abertas','Mapear estrutura de time'] },
+  { nome:'Eventos', objetivo:'Presença e networking direto',
+    sinais:['Palestra confirmada','Patrocínio de evento do setor','Painel com decisor'],
+    acoes:['Participar','Comentar sobre a fala','Puxar conversa presencial'] },
+  { nome:'Podcasts', objetivo:'Entender visão de mundo do decisor',
+    sinais:['Participação recente como convidado','Podcast próprio da empresa'],
+    acoes:['Ouvir e anotar citações','Comentar episódio','Usar como gancho de abertura'] },
+  { nome:'Comunidades', objetivo:'Detectar dor em tempo real',
+    sinais:['Pergunta pública sobre um problema','Pedido de indicação/fornecedor'],
+    acoes:['Responder com valor','Acompanhar discussão','Conectar em DM depois'] },
+  { nome:'Newsletters', objetivo:'Monitorar tendência e movimento de mercado',
+    sinais:['Empresa citada em edição','Executivo mencionado como fonte'],
+    acoes:['Ler edição completa','Guardar como contexto de abordagem'] },
+  { nome:'Vagas', objetivo:'Sinal mais direto de necessidade real',
+    sinais:['Vaga de marketing/growth/conteúdo aberta','Vaga fechada e reaberta','Várias vagas na mesma área'],
+    acoes:['Mapear o time','Identificar o decisor da vaga','Usar a vaga como gancho de abordagem'] }
+];
+
+// =========================================================
+// FRENTES DE MENSAGEM (base existente)
+// =========================================================
+function msgApresentacao(dor, complemento, link){
+  return `Oi, ${NAME}.
+
+Tudo bem?
+
+Estou me aproximando de algumas empresas que estejam buscando fortalecer Marketing, Comunicação e Criação.
+
+Minha atuação é bem multidisciplinar, conectando estratégia, criação, conteúdo, design e execução — principalmente quando existe ${dor}.
+
+${complemento}
+
+Estou aberto a projetos, parcerias e também oportunidades para entrar em times onde esse perfil faça sentido.
+
+Fiquei curioso para entender melhor o que vocês estão buscando e quais são os principais desafios hoje.
+
+Meu portfólio: ${link}
+
+Flávio`;
+}
+function msgFollow1(gancho){
+  return `Oi, ${NAME}! Passando para retomar o contato.
+
+Sei que a rotina costuma ser corrida, então só um lembrete: sigo disponível para uma conversa rápida, sem compromisso.
+
+${gancho}
+
+Abraço,
+Flávio`;
+}
+function msgFollow2(){
+  return `Oi, ${NAME}, tudo bem?
+
+Não quero insistir além da conta, essa é minha última mensagem por aqui.
+
+Se em algum momento fizer sentido conversar, sigo disponível. Fico no aguardo.
+
+Abraço e sucesso com os projetos!
+Flávio`;
+}
+
+const FRONTS = [
+  { id:"marketing", label:"Gestão de Marketing", special:false,
+    desc:"Foco em fortalecer estratégia, posicionamento e performance de marketing de ponta a ponta.",
+    linkLabel:"Portfólio geral", link:"https://flavio-guedes.github.io/portfolio/links.html",
+    apresentacao: msgApresentacao("um desafio de marketing que precisa sair do papel e virar resultado","Dependendo do cenário, acredito que consigo contribuir além da execução criativa, principalmente conectando criação, comunicação e estratégia.","https://flavio-guedes.github.io/portfolio/links.html"),
+    followup1: msgFollow1("Se fizer sentido, consigo compartilhar como já ajudei marcas a conectar estratégia e execução criativa em marketing."),
+    followup2: msgFollow2() },
+  { id:"comunicacao", label:"Coordenador de Comunicação", special:false,
+    desc:"Foco em consistência de narrativa, alinhamento entre áreas e comunicação institucional.",
+    linkLabel:"Página principal", link:"https://flavio-guedes.github.io/portfolio/apresentacao.html",
+    apresentacao: msgApresentacao("uma comunicação que precisa ganhar consistência entre áreas, canais e materiais","Já atuei estruturando narrativa de marca e alinhando comunicação interna e externa em contextos bem diferentes entre si.","https://flavio-guedes.github.io/portfolio/apresentacao.html"),
+    followup1: msgFollow1("Se ajudar, posso mostrar exemplos de como já estruturei narrativa e alinhamento de comunicação entre times."),
+    followup2: msgFollow2() },
+  { id:"growth", label:"Growth", special:false,
+    desc:"Foco em aquisição, testes e criativos que realmente convertem, não só que aparecem bem.",
+    linkLabel:"Case Estapar", link:"https://flavio-guedes.github.io/portfolio/estapar.html",
+    apresentacao: msgApresentacao("um funil de aquisição que precisa de criativos e narrativa alinhados aos dados","Gosto de trabalhar próximo de growth, testando hipóteses de criação e comunicação junto com o que os números mostram.","https://flavio-guedes.github.io/portfolio/estapar.html"),
+    followup1: msgFollow1("Se for útil, posso compartilhar um case onde criação e teste de hipóteses andaram juntos para melhorar conversão."),
+    followup2: msgFollow2() },
+  { id:"design-lead", label:"Design Lead / Diretor de Criação", special:false,
+    desc:"Foco em direção de criação, padrão visual e gestão de qualidade de um time criativo.",
+    linkLabel:"Case Colgate", link:"https://flavio-guedes.github.io/portfolio/colgatev2.html",
+    apresentacao: msgApresentacao("um time criativo que precisa de direção, padrão visual e ritmo de entrega","Já atuei como Diretor de Design e de Criação, estruturando processo criativo do briefing à entrega final.","https://flavio-guedes.github.io/portfolio/colgatev2.html"),
+    followup1: msgFollow1("Se fizer sentido, posso mostrar como estruturei processo e padrão criativo em contas como Colgate e AstraZeneca."),
+    followup2: msgFollow2() },
+  { id:"gestao-projetos", label:"Gestão de Projetos", special:false,
+    desc:"Foco em organizar rotina, prazos e entregas entre times de criação, marketing e negócio.",
+    linkLabel:"Portfólio de projetos", link:"https://flavio-guedes.github.io/portfolio/servicos.html",
+    apresentacao: msgApresentacao("uma rotina de projetos que precisa de mais clareza, prazo e alinhamento entre áreas","Tenho experiência estruturando fluxo de trabalho e prazos entre times criativos, de marketing e de operação.","https://flavio-guedes.github.io/portfolio/servicos.html"),
+    followup1: msgFollow1("Se ajudar, posso compartilhar como já organizei rotina e entregas de projetos entre áreas diferentes."),
+    followup2: msgFollow2() },
+  { id:"head-conteudo", label:"Head de Conteúdo", special:false,
+    desc:"Foco em estratégia editorial, consistência de produção e conteúdo com propósito comercial.",
+    linkLabel:"LinkedIn — Conteúdo e Estratégia", link:"https://www.linkedin.com/in/fl%C3%A1vio-guedes/",
+    apresentacao: msgApresentacao("um conteúdo que precisa ter mais estratégia por trás, não só produção","Já estruturei linha editorial, pilares de conteúdo e produção recorrente conectada a objetivo de negócio.","https://www.linkedin.com/in/fl%C3%A1vio-guedes/"),
+    followup1: msgFollow1("Se for útil, posso mostrar como já estruturei pilares de conteúdo ligados a resultado, não só a calendário editorial."),
+    followup2: msgFollow2() },
+  { id:"head-midia", label:"Head de Mídia", special:false,
+    desc:"Foco em criativos de performance, testes de mídia paga e leitura de resultado.",
+    linkLabel:"Case AstraZeneca", link:"https://flavio-guedes.github.io/portfolio/astrazenecalab.html",
+    apresentacao: msgApresentacao("uma operação de mídia que precisa de mais criativos testados e alinhados à estratégia","Já trabalhei de perto com contas de mídia, produzindo criativos pensados para performance, não só para estética.","https://flavio-guedes.github.io/portfolio/astrazenecalab.html"),
+    followup1: msgFollow1("Se ajudar, posso compartilhar exemplos de criativos que estruturei pensando direto em performance de mídia."),
+    followup2: msgFollow2() },
+  { id:"product-manager", label:"Product Manager", special:false,
+    desc:"Foco em conectar visão de produto, comunicação e experiência de forma mais fluida.",
+    linkLabel:"Portfólio de produto", link:"https://flavio-guedes.github.io/portfolio/product.html",
+    apresentacao: msgApresentacao("um produto que precisa de mais clareza de comunicação entre time, negócio e usuário","Já atuei próximo de squads de produto, ajudando a traduzir estratégia em interface, narrativa e execução.","https://flavio-guedes.github.io/portfolio/product.html"),
+    followup1: msgFollow1("Se fizer sentido, posso mostrar como já ajudei a traduzir estratégia de produto em experiência e comunicação."),
+    followup2: msgFollow2() },
+  { id:"ui-designer", label:"UI Designer", special:false,
+    desc:"Foco em sistemas de design, consistência visual e componentes reutilizáveis.",
+    linkLabel:"Parameter Lab (case UI)", link:"https://flavio-guedes.github.io/portfolio/case-study-ui.html",
+    apresentacao: msgApresentacao("uma interface que precisa de mais consistência visual e sistema por trás","Tenho experiência construindo sistemas de design e componentes que sustentam produtos em crescimento.","https://flavio-guedes.github.io/portfolio/case-study-ui.html"),
+    followup1: msgFollow1("Se ajudar, posso compartilhar um case de sistema de design que estruturei do zero, com componentes reutilizáveis."),
+    followup2: msgFollow2() },
+  { id:"analista-produto", label:"Analista de Produto", special:false,
+    desc:"Foco em traduzir dados e hipóteses em decisões de produto e priorização.",
+    linkLabel:"Portfólio de produto", link:"https://flavio-guedes.github.io/portfolio/product.html",
+    apresentacao: msgApresentacao("hipóteses de produto que precisam virar decisão e interface de forma mais rápida","Gosto de atuar próximo da análise, ajudando a transformar dado e hipótese em solução visível e testável.","https://flavio-guedes.github.io/portfolio/product.html"),
+    followup1: msgFollow1("Se for útil, posso mostrar como já ajudei a transformar hipótese e dado em protótipo testável."),
+    followup2: msgFollow2() },
+  { id:"project-owner", label:"Project Owner", special:false,
+    desc:"Foco em priorização de backlog, clareza de escopo e alinhamento com stakeholders.",
+    linkLabel:"PM Playbook", link:"https://flavio-guedes.github.io/portfolio/pm-playbook.html",
+    apresentacao: msgApresentacao("um backlog que precisa de mais clareza de prioridade e alinhamento com quem decide","Já atuei estruturando escopo, prioridade e comunicação entre time de execução e stakeholders.","https://flavio-guedes.github.io/portfolio/pm-playbook.html"),
+    followup1: msgFollow1("Se ajudar, posso compartilhar como já estruturei prioridade de backlog e comunicação com stakeholders."),
+    followup2: msgFollow2() },
+  { id:"account-manager", label:"Account Manager", special:false,
+    desc:"Foco em relacionamento com cliente, alinhamento de expectativas e qualidade de entrega.",
+    linkLabel:"Portfólio geral", link:"https://flavio-guedes.github.io/portfolio/links.html",
+    apresentacao: msgApresentacao("uma conta que precisa de mais alinhamento entre o que foi vendido e o que é entregue","Já atuei do lado da entrega, o que me ajuda a entender bem o que uma conta precisa para funcionar sem ruído.","https://flavio-guedes.github.io/portfolio/links.html"),
+    followup1: msgFollow1("Se fizer sentido, posso compartilhar como já ajudei a alinhar expectativa e entrega em contas exigentes."),
+    followup2: msgFollow2() },
+  { id:"customer-success", label:"Customer Success", special:false,
+    desc:"Foco em experiência do cliente, retenção e processos mais claros de acompanhamento.",
+    linkLabel:"Case Rotinas", link:"https://flavio-guedes.github.io/portfolio/case-rotinas-rh.html",
+    apresentacao: msgApresentacao("uma jornada de cliente que precisa de mais clareza de processo e comunicação","Tenho experiência estruturando rotina e processo para tornar a experiência mais previsível para quem está do outro lado.","https://flavio-guedes.github.io/portfolio/case-rotinas-rh.html"),
+    followup1: msgFollow1("Se ajudar, posso mostrar um case onde estruturei rotina e processo para melhorar a experiência de quem participa dela."),
+    followup2: msgFollow2() },
+  { id:"analista-comercial", label:"Analista Comercial", special:false,
+    desc:"Foco em apoiar prospecção, funil comercial e material de apresentação mais claro.",
+    linkLabel:"Ferramenta de busca de vagas", link:"https://flavio-guedes.github.io/portfolio/boolean_tool2.html",
+    apresentacao: msgApresentacao("um funil comercial que precisa de material e comunicação mais claros para converter","Já ajudei times comerciais com apresentações, propostas e materiais pensados para facilitar a decisão do cliente.","https://flavio-guedes.github.io/portfolio/boolean_tool2.html"),
+    followup1: msgFollow1("Se for útil, posso compartilhar exemplos de propostas e materiais comerciais que já estruturei."),
+    followup2: msgFollow2() },
+  { id:"ia-agentica", label:"Todas as empresas — Foco em IA Agêntica", special:true,
+    desc:"Mensagem transversal, para qualquer empresa, com foco específico em IA Agêntica aplicada a marketing, comunicação e operação.",
+    linkLabel:"Laboratório de Parâmetros", link:"https://flavio-guedes.github.io/portfolio/parameter-lab.html",
+    apresentacao: `Oi, ${NAME}.
+
+Tudo bem?
+
+Estou me aproximando de empresas que estejam curiosas sobre como usar IA Agêntica de forma prática, não só como tendência, mas como ferramenta para resolver gargalos reais de marketing, comunicação e operação.
+
+Minha atuação conecta estratégia, criação e tecnologia: ajudo a entender onde faz sentido aplicar agentes de IA e a estruturar isso de forma simples de sustentar no dia a dia.
+
+Estou aberto a projetos, parcerias e conversas para entender se isso já está no radar de vocês.
+
+Fiquei curioso para saber se IA Agêntica é algo que já discutem internamente e quais seriam os principais desafios para colocar em prática.
+
+Meu portfólio: https://flavio-guedes.github.io/portfolio/parameter-lab.html
+
+Flávio`,
+    followup1: msgFollow1("Se ajudar, posso compartilhar como estruturo um primeiro diagnóstico simples de onde a IA Agêntica faria diferença na rotina de um time."),
+    followup2: msgFollow2() }
+];
+
+// =========================================================
+// STORAGE WRAPPER V7 — localStorage fallback + export/import
+// =========================================================
+const Storage = {
+  async get(key, meta){
+    try{
+      const raw = localStorage.getItem('prospect_'+key);
+      if(raw===null) return {value:null};
+      return {value: raw};
+    }catch(e){ return {value:null}; }
+  },
+  async set(key, value, meta){
+    try{ localStorage.setItem('prospect_'+key, String(value)); }catch(e){ console.error('Storage set failed', e); }
+  },
+  async remove(key){
+    try{ localStorage.removeItem('prospect_'+key); }catch(e){}
+  }
+};
+window.storage = Storage;
+
+function exportAll(){
+  const data = {
+    version:'V7',
+    exportedAt: new Date().toISOString(),
+    contacts: state.contacts,
+    radar: state.radar,
+    contentIdeas: state.contentIdeas,
+    settings: { activeFrontId: state.activeFrontId, railCollapsed: state.railCollapsed }
+  };
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'prospect-intelligence-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click(); URL.revokeObjectURL(url);
+}
+function importAll(file){
+  const reader = new FileReader();
+  reader.onload = (e)=>{
+    try{
+      const data = JSON.parse(e.target.result);
+      if(!data.contacts || !data.radar) throw new Error('Formato inválido');
+      state.contacts = data.contacts || {};
+      state.radar = data.radar || [];
+      state.contentIdeas = data.contentIdeas || [];
+      if(data.settings){
+        state.activeFrontId = data.settings.activeFrontId || state.activeFrontId;
+        state.railCollapsed = data.settings.railCollapsed || state.railCollapsed;
+      }
+      saveContacts(); saveRadar(); saveIdeas();
+      alert('Importação concluída com sucesso!');
+      renderSection();
+    }catch(err){ alert('Erro na importação: '+err.message); }
+  };
+  reader.readAsText(file);
+}
+
+// =========================================================
+// STATE
+// =========================================================
+const state = {
+  section: 'inteligencia',
+  railCollapsed: false,
+  mobileOpen: false,
+  storageReady: false,
+  contacts: {},
+  radar: [],
+  contentIdeas: [],
+  activeFrontId: FRONTS[0].id,
+  activeContactByFront: {},
+  radarFilters: { segmento:new Set(), perfil:new Set(), momento:new Set() }
+};
+
+function uid(prefix){ return prefix + '_' + Date.now() + '_' + Math.random().toString(36).slice(2,7); }
+function escapeHtml(str){ const d = document.createElement('div'); d.textContent = str==null?'':String(str); return d.innerHTML; }
+
+// =========================================================
+// STORAGE
+// =========================================================
+async function loadAll(){
+  try{
+    const [c,r,i] = await Promise.all([
+      window.storage.get('contacts-data', false).catch(()=>null),
+      window.storage.get('radar-data', false).catch(()=>null),
+      window.storage.get('content-ideas', false).catch(()=>null)
+    ]);
+    state.contacts = c && c.value ? JSON.parse(c.value) : {};
+    Object.keys(state.contacts).forEach(fid=>{ state.contacts[fid] = state.contacts[fid].map(normalizeContact); });
+    state.radar = r && r.value ? JSON.parse(r.value) : [];
+    state.contentIdeas = i && i.value ? JSON.parse(i.value) : [];
+  }catch(e){
+    state.contacts = state.contacts || {};
+    state.radar = state.radar || [];
+    state.contentIdeas = state.contentIdeas || [];
+  }
+  state.storageReady = true;
+  renderSection();
+}
+function normalizeContact(c){
+  return Object.assign({
+    nivel:'leve', checklist:{fit:false,acesso:false,sinal:false,tempo:false},
+    obs:'', hipotese:'', aquecimento:{seguiu:false,curtiu:false,comentou:false,viu:false},
+    origemRadarId:null
+  }, c);
+}
+async function saveContacts(){ try{ await window.storage.set('contacts-data', JSON.stringify(state.contacts), false); }catch(e){ console.error('Falha ao salvar contatos', e); } }
+async function saveRadar(){ try{ await window.storage.set('radar-data', JSON.stringify(state.radar), false); }catch(e){ console.error('Falha ao salvar radar', e); } }
+async function saveIdeas(){ try{ await window.storage.set('content-ideas', JSON.stringify(state.contentIdeas), false); }catch(e){ console.error('Falha ao salvar ideias', e); } }
+
+// =========================================================
+// CONTACTS LOGIC
+// =========================================================
+function getContacts(frontId){ if(!state.contacts[frontId]) state.contacts[frontId] = []; return state.contacts[frontId]; }
+function computeNivel(checklist){
+  const count = Object.values(checklist).filter(Boolean).length;
+  if(count >= 3) return 'consultivo';
+  if(count >= 1) return 'leve';
+  return 'aguardar';
+}
+function addContact(frontId, nome, empresa, checklist){
+  checklist = checklist || {fit:false,acesso:false,sinal:false,tempo:false};
+  const nivel = computeNivel(checklist);
+  getContacts(frontId).push({
+    id:uid('c'), nome:nome.trim(), empresa:(empresa||'').trim(),
+    status:'nao_enviado', lastSentAt:null, createdAt:new Date().toISOString(),
+    nivel, checklist, obs:'', hipotese:'',
+    aquecimento:{seguiu:false,curtiu:false,comentou:false,viu:false}, origemRadarId:null
+  });
+  saveContacts();
+}
+function addContactFromOpportunity(frontId, opp, nomeContato){
+  const primeiroSinal = (opp.sinais||[])[0];
+  getContacts(frontId).push({
+    id:uid('c'), nome:(nomeContato||'').trim() || (primeiroSinal ? primeiroSinal.decisor_provavel : 'Contato'),
+    empresa: opp.empresa, status:'nao_enviado', lastSentAt:null, createdAt:new Date().toISOString(),
+    nivel:'consultivo', checklist:{fit:true,acesso:false,sinal:true,tempo:true},
+    obs: primeiroSinal ? primeiroSinal.descricao : (opp.resumo||''),
+    hipotese: primeiroSinal ? primeiroSinal.acao_recomendada : '',
+    aquecimento:{seguiu:false,curtiu:false,comentou:false,viu:false}, origemRadarId: opp.id
+  });
+  saveContacts();
+}
+function removeContact(frontId, contactId){
+  state.contacts[frontId] = getContacts(frontId).filter(c=>c.id!==contactId);
+  if(state.activeContactByFront[frontId]===contactId) delete state.activeContactByFront[frontId];
+  saveContacts();
+}
+function setContactStatus(frontId, contactId, status){
+  const c = getContacts(frontId).find(x=>x.id===contactId); if(!c) return;
+  c.status = status; if(status!=='nao_enviado') c.lastSentAt = new Date().toISOString();
+  saveContacts();
+}
+function advanceContactStage(frontId, contactId, stage){
+  const c = getContacts(frontId).find(x=>x.id===contactId); if(!c) return;
+  const curIdx = STAGES.indexOf(c.status); const newIdx = STAGES.indexOf(stage);
+  if(c.status!=='respondeu' && newIdx>curIdx) c.status = stage;
+  c.lastSentAt = new Date().toISOString();
+  saveContacts();
+}
+function setActiveContact(frontId, contactId){
+  if(state.activeContactByFront[frontId]===contactId) delete state.activeContactByFront[frontId];
+  else state.activeContactByFront[frontId] = contactId;
+}
+function daysSince(iso){ if(!iso) return null; return Math.floor((Date.now()-new Date(iso).getTime())/(1000*60*60*24)); }
+function formatLastSent(iso){
+  if(!iso) return 'Nunca enviado';
+  const d = daysSince(iso);
+  if(d===0) return 'Enviado hoje';
+  if(d===1) return 'Enviado há 1 dia';
+  return 'Enviado há ' + d + ' dias';
+}
+function frontStats(frontId){
+  const list = getContacts(frontId);
+  const total = list.length;
+  const enviados = list.filter(c=>c.status!=='nao_enviado').length;
+  const respondidos = list.filter(c=>c.status==='respondeu').length;
+  const taxa = enviados>0 ? Math.round((respondidos/enviados)*100) : 0;
+  return {total, enviados, respondidos, taxa};
+}
+function allContactsFlat(){
+  const out = [];
+  FRONTS.forEach(f=>{ getContacts(f.id).forEach(c=>out.push(Object.assign({}, c, {frontId:f.id, frontLabel:f.label}))); });
+  return out;
+}
+function isAquecido(c){ const a = c.aquecimento||{}; return Object.values(a).filter(Boolean).length >= 2; }
+function warmCount(c){ const a = c.aquecimento||{}; return Object.values(a).filter(Boolean).length; }
+
+// =========================================================
+// FUNIL DE AQUECIMENTO (Etapa 1.4)
+// Nível 0 Desconhecido · 1 Identificado · 2 Interação · 3 Reconhecimento · 4 Abordagem · 5 Conversa
+// Derivado dos dados já existentes (sem exigir novo campo/migração)
+// =========================================================
+const NIVEL_AQUEC_LABEL = ['Desconhecido','Identificado','Interação','Reconhecimento','Abordagem','Conversa'];
+function contactAquecNivel(c){
+  if(c.status==='respondeu') return 5;
+  if(['apresentacao','follow1','follow2'].includes(c.status)) return 4;
+  const w = warmCount(c);
+  if(w>=3) return 3;
+  if(w>=1) return 2;
+  return 1;
+}
+function computeFunilNiveis(){
+  const nivel0 = state.radar.filter(o=>o.status==='novo').length;
+  const flat = allContactsFlat();
+  const counts = [nivel0,0,0,0,0,0];
+  flat.forEach(c=>{ counts[contactAquecNivel(c)]++; });
+  return counts;
+}
+
+// =========================================================
+// PAINEL DO PROSPECT (Etapa 1.3)
+// =========================================================
+function potencialFromOpp(o){
+  if(!o) return '-';
+  const fit = o.fitScore||0;
+  if(fit>=70) return 'Alto';
+  if(fit>=40) return 'Médio';
+  return 'Baixo';
+}
+function inferPresenca(o){
+  const domains = new Set();
+  (o&&o.sinais||[]).forEach(s=>{
+    if(!s.fonte) return;
+    try{
+      const host = new URL(s.fonte).hostname.replace('www.','');
+      if(host.includes('linkedin')) domains.add('LinkedIn');
+      else if(host.includes('youtube')) domains.add('YouTube');
+      else if(host.includes('instagram')) domains.add('Instagram');
+      else domains.add(host);
+    }catch(e){}
+  });
+  return Array.from(domains);
+}
+function findOppForContact(c){
+  if(!c || !c.origemRadarId) return null;
+  return state.radar.find(o=>o.id===c.origemRadarId) || null;
+}
+function openProspectPanel(opp, contact){
+  const backdrop = document.getElementById('prospectModalBackdrop');
+  const panel = document.getElementById('prospectModalPanel');
+  const nome = contact ? contact.nome : (opp ? opp.empresa : 'Prospect');
+  const cargo = (opp && opp.sinais && opp.sinais[0] && opp.sinais[0].decisor_provavel) || (opp && opp.perfilTags && opp.perfilTags[0]) || '';
+  const empresa = (contact && contact.empresa) || (opp && opp.empresa) || '';
+  const momento = (opp && opp.momentoTags && opp.momentoTags[0]) || '-';
+  const potencial = potencialFromOpp(opp);
+  const fit = opp ? (opp.fitScore||0)+'%' : '-';
+  const sinais = (opp && opp.sinais) || [];
+  const temas = opp ? Array.from(new Set([...(opp.segmentoTags||[]), ...(opp.perfilTags||[])])) : [];
+  const presenca = inferPresenca(opp);
+  const ganchos = sinais.map(s=>({titulo:MOMENTO_LABEL[s.tipo]||'Sinal', texto:s.acao_recomendada||s.descricao||''})).filter(g=>g.texto);
+
+  panel.innerHTML = `
+    <div class="modal-head">
+      <div>
+        <h3>${escapeHtml(nome)}</h3>
+        <div class="sub">${escapeHtml(cargo)}${cargo&&empresa?' · ':''}${escapeHtml(empresa)}</div>
+      </div>
+      <button class="modal-close" id="modalCloseBtn">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-stats">
+        <div class="modal-stat"><div class="v">${escapeHtml(potencial)}</div><div class="k">Potencial</div></div>
+        <div class="modal-stat"><div class="v">${escapeHtml(momento)}</div><div class="k">Momento</div></div>
+        <div class="modal-stat"><div class="v">${escapeHtml(fit)}</div><div class="k">Fit</div></div>
+      </div>
+      <div>
+        <div class="modal-section-lbl">Sinais</div>
+        <div class="modal-list">${sinais.length? sinais.map(s=>`<div class="modal-list-item">●&nbsp;<span><b>${escapeHtml(MOMENTO_LABEL[s.tipo]||'Sinal')}</b> — ${escapeHtml(s.descricao||'')}</span></div>`).join('') : '<div class="modal-list-item">Nenhum sinal registrado ainda.</div>'}</div>
+      </div>
+      <div>
+        <div class="modal-section-lbl">Temas</div>
+        <div class="modal-tags">${temas.length? temas.map(t=>`<span class="opp-tag">${escapeHtml(t)}</span>`).join('') : '<div class="modal-list-item">—</div>'}</div>
+      </div>
+      <div>
+        <div class="modal-section-lbl">Presença</div>
+        <div class="modal-tags">${presenca.length? presenca.map(p=>`<span class="opp-tag">${escapeHtml(p)}</span>`).join('') : '<div class="modal-list-item">Não identificada ainda.</div>'}</div>
+      </div>
+      <div>
+        <div class="modal-section-lbl">Ganchos</div>
+        <div class="modal-list">${ganchos.length? ganchos.map(g=>`<div class="modal-list-item">→&nbsp;<span><b>${escapeHtml(g.titulo)}</b> — ${escapeHtml(g.texto)}</span></div>`).join('') : '<div class="modal-list-item">Gere ganchos na aba Ganchos.</div>'}</div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="mini-btn" data-panel-action="comentar">Comentar</button>
+      <button class="mini-btn" data-panel-action="conteudo">Criar conteúdo</button>
+      <button class="mini-btn" data-panel-action="acompanhar">Acompanhar</button>
+      <button class="mini-btn active-btn" data-panel-action="mensagem">Enviar mensagem</button>
+    </div>
+  `;
+  document.getElementById('modalCloseBtn').addEventListener('click', closeProspectPanel);
+  panel.querySelectorAll('[data-panel-action]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const action = btn.dataset.panelAction;
+      closeProspectPanel();
+      if(action==='comentar'){ state.section='canais'; renderSection(); }
+      else if(action==='conteudo'){ state.section='conteudo'; renderSection(); }
+      else if(action==='acompanhar'){ state.section='aquecimento'; renderSection(); }
+      else if(action==='mensagem'){
+        if(contact){ state.section='mensagens'; state.activeFrontId=contact.frontId; state.activeContactByFront[contact.frontId]=contact.id; renderSection(); }
+        else if(opp){ openMoveToProspects(opp); }
+      }
+    });
+  });
+  backdrop.classList.add('show');
+}
+function closeProspectPanel(){ document.getElementById('prospectModalBackdrop').classList.remove('show'); }
+
+function buildConsultivaApresentacao(contact){
+  const empresa = contact.empresa || 'a empresa';
+  const obs = contact.obs && contact.obs.trim() ? contact.obs.trim() : '[o que você notou sobre a comunicação, produto ou campanha]';
+  const hip = contact.hipotese && contact.hipotese.trim() ? contact.hipotese.trim() : '[sua leitura inicial sobre o que pode estar limitando algo]';
+  return `Oi, ${contact.nome || NAME}. Tudo bem?
+
+Estava olhando ${empresa} e notei ${obs}.
+
+Pelo que vi, minha leitura inicial é que ${hip}.
+
+Isso me chamou atenção porque já trabalhei bastante conectando estratégia, criação e comunicação em contextos parecidos.
+
+Faz sentido pra vocês essa leitura, ou o cenário interno é diferente do que aparenta de fora?
+
+Se fizer sentido, posso te mostrar como pensaria uma abordagem pra isso.
+
+Flávio`;
+}
+function buildConsultivaFollow1(contact){
+  const obsShort = contact.obs && contact.obs.trim() ? contact.obs.trim() : 'aquele ponto que te mandei';
+  return `Oi, ${contact.nome || NAME}! Passando para retomar.
+
+Sei que a rotina é corrida. Fica aberto: se quiser, posso aprofundar a leitura sobre ${obsShort} com mais detalhe, sem compromisso.
+
+Abraço,
+Flávio`;
+}
+
+function copyText(text, btn){
+  const done = ()=>{
+    const original = btn.textContent;
+    btn.textContent = 'Copiado!'; btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent = original; btn.classList.remove('copied'); }, 1600);
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text, done));
+  } else { fallbackCopy(text, done); }
+}
+function fallbackCopy(text, cb){
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); }catch(e){}
+  document.body.removeChild(ta); cb();
+}
+
+// =========================================================
+// RADAR / AI RESEARCH
+// =========================================================
+function opportunitiesActive(){ return state.radar.filter(o=>o.status!=='descartado'); }
+
+function buildResearchPrompt(query){
+  return `Você é um analista de inteligência comercial. Pesquise informações reais e atuais na web sobre: "${query}".
+
+Procure sinais concretos de oportunidade comercial: vagas abertas (principalmente marketing, comunicação, criação, produto), lançamento de produto, expansão, crescimento, investimento em mídia, mudança de posicionamento de marca, estruturação de IA, criação de área de conteúdo, rodada de investimento captado, abertura de novas unidades.
+
+Regras importantes:
+- Só inclua sinais que você realmente encontrou na busca. Se não encontrar nada relevante, retorne sinais como lista vazia.
+- Não invente nomes de pessoas, vagas ou notícias. Se não souber o nome de um decisor, use o CARGO provável, nunca um nome inventado.
+- Cite a fonte (URL) de cada sinal quando disponível.
+- No máximo 4 sinais, descrições curtas (até 20 palavras cada).
+
+Responda apenas com um JSON válido, sem texto antes ou depois, neste formato exato:
+{"empresa":"nome pesquisado","setor":"setor ou segmento","resumo":"até 2 frases sobre o momento atual","sinais":[{"tipo":"contratacao|crescimento|lancamento_produto|mudanca_posicionamento|investimento_midia|estruturando_ia|criando_conteudo|expansao|investimento_captado|outro","descricao":"...","potencial":"alto|medio|baixo","area":"...","decisor_provavel":"cargo, nunca nome inventado","acao_recomendada":"...","fonte":"URL ou vazio"}],"fit_estimado":0,"fit_justificativa":"..."}`;
+}
+
+function matchSegmento(setor){
+  const low = (setor||'').toLowerCase();
+  const found = SEGMENTOS.filter(s=>low.includes(s.toLowerCase()));
+  return found.length ? found : (setor ? [setor] : []);
+}
+function matchPerfil(decisor){
+  if(!decisor) return null;
+  const low = decisor.toLowerCase();
+  return PERFIS.find(p=>low.includes(p.toLowerCase()) || p.toLowerCase().includes(low)) || decisor;
+}
+function normalizeOpportunity(parsed, query){
+  const sinais = (parsed.sinais||[]).map(s=>({
+    tipo:s.tipo||'outro', descricao:s.descricao||'', potencial:s.potencial||'medio',
+    area:s.area||'', decisor_provavel:s.decisor_provavel||'', acao_recomendada:s.acao_recomendada||'',
+    fonte:s.fonte||'', done:false
+  }));
+  const momentoTags = Array.from(new Set(sinais.map(s=>MOMENTO_LABEL[s.tipo]).filter(Boolean)));
+  const segmentoTags = matchSegmento(parsed.setor||'');
+  const perfilTags = Array.from(new Set(sinais.map(s=>matchPerfil(s.decisor_provavel)).filter(Boolean)));
+  return {
+    id:uid('opp'), empresa: parsed.empresa || query, setor: parsed.setor || '', resumo: parsed.resumo || '',
+    sinais, momentoTags, segmentoTags, perfilTags,
+    fitScore: Math.max(0, Math.min(100, Number(parsed.fit_estimado)||0)),
+    fitJustificativa: parsed.fit_justificativa || '',
+    geradoEm: new Date().toISOString(), status:'novo'
+  };
+}
+async function researchOpportunity(query){
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      model:'claude-sonnet-4-6', max_tokens:1000,
+      messages:[{role:'user', content: buildResearchPrompt(query)}],
+      tools:[{type:'web_search_20250305', name:'web_search'}]
+    })
+  });
+  if(!response.ok) throw new Error('falha na API');
+  const data = await response.json();
+  const text = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n');
+  const cleaned = text.replace(/```json|```/g,'').trim();
+  const match = cleaned.match(/\{[\s\S]*\}/);
+  if(!match) throw new Error('resposta sem JSON válido');
+  return normalizeOpportunity(JSON.parse(match[0]), query);
+}
+
+// =========================================================
+// CONTENT IDEAS
+// =========================================================
+function contextSummaryForIdeas(){
+  const momentos = new Set();
+  opportunitiesActive().forEach(o=>(o.momentoTags||[]).forEach(m=>momentos.add(m)));
+  return Array.from(momentos).join(', ');
+}
+async function generateContentIdeas(){
+  const ctx = contextSummaryForIdeas();
+  const momentoKeys = Object.keys(MOMENTO_LABEL).filter(k=>MOMENTO_LABEL[k]);
+  const prompt = `Gere 6 ideias curtas de conteúdo para LinkedIn, para um profissional multidisciplinar de estratégia, criação, comunicação e IA agêntica aplicada a negócios.
+
+Contexto de momentos observados em oportunidades reais: ${ctx || 'nenhum ainda, gere ideias gerais sobre marketing, comunicação, criação e IA agêntica aplicada a negócios'}.
+
+Para cada ideia, indique quais "momentos" da lista a seguir ela se conecta (isso é usado depois para relacionar a ideia com prospects reais que têm esse momento): ${momentoKeys.join(', ')}.
+
+Responda apenas com um JSON válido, sem texto antes ou depois: [{"titulo":"...","angulo":"...","momentos":["chave1","chave2"]}] com no máximo 6 itens, no máximo 2 momentos por ideia, e as chaves de "momentos" devem vir exatamente da lista acima.`;
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:1000, messages:[{role:'user', content:prompt}] })
+  });
+  if(!response.ok) throw new Error('falha na API');
+  const data = await response.json();
+  const text = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n');
+  const cleaned = text.replace(/```json|```/g,'').trim();
+  const match = cleaned.match(/\[[\s\S]*\]/);
+  if(!match) throw new Error('resposta sem JSON válido');
+  return JSON.parse(match[0]).map(i=>({
+    id:uid('idea'), titulo:i.titulo||'', angulo:i.angulo||'',
+    momentos:(i.momentos||[]).filter(m=>MOMENTO_LABEL[m]),
+    criadoEm:new Date().toISOString()
+  }));
+}
+function prospectsRelacionados(idea){
+  const labels = (idea.momentos||[]).map(m=>MOMENTO_LABEL[m]).filter(Boolean);
+  if(labels.length===0) return [];
+  return opportunitiesActive().filter(o=>(o.momentoTags||[]).some(t=>labels.includes(t)));
+}
+
+// =========================================================
+// RAIL
+// =========================================================
+function renderRail(){
+  const rail = document.getElementById('rail');
+  let html = `
+    <div class="rail-head">
+      <div class="rail-brand"><b>PROSPECT<br>INTELLIGENCE</b><div class="tag">Discover · Engage · Convert</div></div>
+      <button class="rail-toggle" id="railToggle">${state.railCollapsed ? '»' : '«'}</button>
+      <button class="theme-toggle" id="themeBtn" title="Alternar tema">◐</button>
+    </div>`;
+  NAV_GROUPS.forEach(g=>{
+    html += `<div class="rail-group"><div class="rail-group-label">${g.label}</div>`;
+    g.items.forEach(id=>{
+      const item = NAV_ITEMS.find(n=>n.id===id);
+      html += `<button class="rail-item${state.section===id?' active':''}" data-nav="${id}">
+        <span class="ic">${item.icon}</span><span class="rn">${item.n}</span><span class="lbl">${item.label}</span>
+      </button>`;
+    });
+    html += `</div>`;
+  });
+  rail.className = 'rail' + (state.railCollapsed?' collapsed':'') + (state.mobileOpen?' mobile-open':'');
+  rail.innerHTML = html;
+  rail.querySelectorAll('[data-nav]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ state.section = btn.dataset.nav; state.mobileOpen=false; renderSection(); });
+  });
+  document.getElementById('railToggle').addEventListener('click', ()=>{ state.railCollapsed = !state.railCollapsed; renderRail(); });
+  document.getElementById('railBackdrop').className = 'rail-backdrop' + (state.mobileOpen ? ' show' : '');
+}
+
+// =========================================================
+// SECTION DISPATCH
+// =========================================================
+function renderSection(){
+  renderRail();
+  const el = document.getElementById('mainArea');
+  el.innerHTML = '';
+  if(state.section==='inteligencia') renderInteligencia(el);
+  else if(state.section==='radar') renderRadar(el);
+  else if(state.section==='canais') renderCanais(el);
+  else if(state.section==='prospects') renderProspects(el);
+  else if(state.section==='aquecimento') renderAquecimento(el);
+  else if(state.section==='ganchos') renderGanchos(el);
+  else if(state.section==='conteudo') renderConteudo(el);
+  else if(state.section==='mensagens') renderMensagens(el);
+  else if(state.section==='pipeline') renderPipeline(el);
+}
+
+// =========================================================
+// 01 INTELIGÊNCIA
+// =========================================================
+function computeHomeStats(){
+  const opps = opportunitiesActive();
+  const segmentos = new Set(); const decisores = new Set(); let sinais=0; let prontas=0;
+  opps.forEach(o=>{
+    (o.segmentoTags||[]).forEach(s=>segmentos.add(s));
+    (o.sinais||[]).forEach(s=>{ sinais++; if(s.decisor_provavel) decisores.add(s.decisor_provavel); });
+    if((o.fitScore||0)>=70) prontas++;
+  });
+  return {oportunidades:opps.length, segmentos:segmentos.size, decisores:decisores.size, sinais, prontas};
+}
+function topN(counterMap, n){
+  return Object.entries(counterMap).sort((a,b)=>b[1]-a[1]).slice(0,n).map(e=>e[0]);
+}
+function computePlano(){
+  const opps = opportunitiesActive();
+  const segCount = {}, perfilCount = {}, tipoCount = {}, canalCount = {};
+  opps.forEach(o=>{
+    (o.segmentoTags||[]).forEach(s=>segCount[s]=(segCount[s]||0)+1);
+    (o.perfilTags||[]).forEach(p=>perfilCount[p]=(perfilCount[p]||0)+1);
+    (o.sinais||[]).forEach(s=>{
+      if(s.tipo) tipoCount[s.tipo]=(tipoCount[s.tipo]||0)+1;
+      if(s.fonte){
+        try{
+          const host = new URL(s.fonte).hostname.replace('www.','');
+          let cat = 'Sites';
+          if(host.includes('linkedin')) cat='LinkedIn';
+          else if(host.includes('youtube')) cat='YouTube';
+          else if(host.includes('instagram')) cat='Instagram';
+          canalCount[cat]=(canalCount[cat]||0)+1;
+        }catch(e){}
+      }
+    });
+  });
+  const segmentos = topN(segCount,3);
+  const decisores = topN(perfilCount,3);
+  const sinaisPrioritarios = topN(tipoCount,4).map(k=>MOMENTO_LABEL[k]).filter(Boolean);
+  let canais = Object.entries(canalCount).sort((a,b)=>b[1]-a[1]);
+  if(canais.length===0) canais = [['LinkedIn',10],['Sites',6],['Eventos',5],['Podcasts',4]];
+  const maxCanal = Math.max(...canais.map(c=>c[1]));
+  const funil = computeFunilNiveis();
+  const prospectsPrioritarios = opps.filter(o=>(o.fitScore||0)>=70).length;
+  const aquecimento = funil[1]+funil[2]+funil[3];
+  const abordagem = funil[4];
+  const conteudosRecomendados = Math.min(6, Math.max(2, Math.ceil((prospectsPrioritarios||opps.length||1)/3)));
+  const topSeg = segmentos[0] || 'B2B';
+  const topDecisor = decisores[0] || 'decisores relevantes';
+  return {
+    objetivo:`Encontrar empresas ${segmentos.length?segmentos.join(' · '):'em expansão'} com sinais de ${(sinaisPrioritarios[0]||'crescimento').toLowerCase()} e acesso a ${topDecisor}.`,
+    segmentos: segmentos.length?segmentos:['—'],
+    decisores: decisores.length?decisores:['—'],
+    sinaisPrioritarios: sinaisPrioritarios.length?sinaisPrioritarios:['—'],
+    canais: canais.map(c=>({nome:c[0], valor:c[1], pct: Math.round((c[1]/maxCanal)*100)})),
+    prospectsPrioritarios, aquecimento, abordagem, conteudosRecomendados,
+    proximaAcao:`Pesquisar mais empresas em "${topSeg}" e mapear os decisores (${topDecisor}) de cada uma.`
+  };
+}
+function renderPlanoCard(){
+  const box = document.getElementById('planoResult'); if(!box) return;
+  if(opportunitiesActive().length===0){ box.innerHTML = `<div class="contact-empty">Pesquise ao menos uma empresa ou segmento acima para gerar o plano.</div>`; return; }
+  const p = computePlano();
+  box.innerHTML = `
+    <div class="plano-card">
+      <div class="plano-block" style="margin-bottom:14px;">
+        <div class="pb-lbl">Objetivo</div>
+        <div class="pb-val">${escapeHtml(p.objetivo)}</div>
+      </div>
+      <div class="plano-row">
+        <div class="plano-block"><div class="pb-lbl">Segmentos</div><div class="pb-val">${p.segmentos.map(escapeHtml).join(' · ')}</div></div>
+        <div class="plano-block"><div class="pb-lbl">Decisores</div><div class="pb-val">${p.decisores.map(escapeHtml).join(' · ')}</div></div>
+        <div class="plano-block"><div class="pb-lbl">Sinais prioritários</div><div class="pb-val">${p.sinaisPrioritarios.map(escapeHtml).join(' · ')}</div></div>
+      </div>
+      <div class="plano-block" style="margin-bottom:8px;">
+        <div class="pb-lbl">Canais</div>
+        ${p.canais.map(c=>`<div class="canal-bar-row"><div class="canal-bar-name">${escapeHtml(c.nome)}</div><div class="canal-bar-track"><div class="canal-bar-fill" style="width:${c.pct}%;"></div></div></div>`).join('')}
+      </div>
+      <div class="plano-nums">
+        <div class="plano-num-box"><div class="num">${p.prospectsPrioritarios}</div><div class="lbl">Prospects prioritários</div></div>
+        <div class="plano-num-box"><div class="num">${p.aquecimento}</div><div class="lbl">Em aquecimento</div></div>
+        <div class="plano-num-box"><div class="num">${p.abordagem}</div><div class="lbl">Em abordagem</div></div>
+        <div class="plano-num-box"><div class="num">${p.conteudosRecomendados}</div><div class="lbl">Conteúdos recomendados</div></div>
+      </div>
+      <div class="plano-block">
+        <div class="pb-lbl">Próxima ação</div>
+        <div class="pb-val">${escapeHtml(p.proximaAcao)}</div>
+      </div>
+    </div>
+  `;
+}
+function renderInteligencia(el){
+  const stats = computeHomeStats();
+  el.innerHTML = `
+    <div class="eyebrow"><span class="node-dot"></span>Inteligência</div>
+    <div class="intel-hero bracket">
+      <h2 class="display">Descubra onde agir antes de abordar.</h2>
+      <p>Informe uma ou mais empresas, ou um segmento (ex: "escolas de idiomas em SP"), e a IA pesquisa sinais reais na web antes de qualquer abordagem. Sem dado inventado.</p>
+      <div class="research-form">
+        <textarea id="researchInput" placeholder="Uma empresa ou segmento por linha. Ex:&#10;Empresa X&#10;Fintechs em expansão no Brasil"></textarea>
+        <div class="hint">Até 5 por vez. Requer que este arquivo esteja aberto dentro do Claude para funcionar a busca real.</div>
+        <button class="btn-primary" id="researchBtn">Pesquisar e adicionar ao radar</button>
+        <div class="research-log" id="researchLog"></div>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-box"><div class="num">${stats.oportunidades}</div><div class="lbl">oportunidades identificadas</div></div>
+      <div class="stat-box"><div class="num">${stats.segmentos}</div><div class="lbl">segmentos mapeados</div></div>
+      <div class="stat-box"><div class="num">${stats.decisores}</div><div class="lbl">perfis de decisor relevantes</div></div>
+      <div class="stat-box"><div class="num">${stats.sinais}</div><div class="lbl">sinais de mercado</div></div>
+      <div class="stat-box"><div class="num">${stats.prontas}</div><div class="lbl">prontas para ação (fit ≥ 70)</div></div>
+    </div>
+
+    <div class="eyebrow"><span class="node-dot"></span>Plano de prospecção — próximos 7 dias</div>
+    <button class="btn-primary" id="planoBtn" style="margin-bottom:18px;">Gerar plano de prospecção</button>
+    <div id="planoResult" style="margin-bottom:8px;"></div>
+
+    <div class="eyebrow"><span class="node-dot"></span>Sinais de mercado</div>
+    <div class="action-list" id="signalsList"></div>
+
+    <div class="eyebrow"><span class="node-dot"></span>Oportunidades</div>
+    <div class="opp-grid" id="oppGrid"></div>
+
+    <div class="eyebrow"><span class="node-dot"></span>Próximas ações — hoje</div>
+    <div class="action-list" id="nextActions"></div>
+  `;
+  document.getElementById('researchBtn').addEventListener('click', runResearchFlow);
+  document.getElementById('planoBtn').addEventListener('click', renderPlanoCard);
+  renderSignalsList();
+  renderOppGrid(document.getElementById('oppGrid'), opportunitiesActive().slice(-6).reverse());
+  renderNextActions();
+}
+function renderSignalsList(){
+  const box = document.getElementById('signalsList');
+  const flat = [];
+  opportunitiesActive().forEach(o=>{ (o.sinais||[]).forEach(s=>flat.push(Object.assign({}, s, {empresa:o.empresa}))); });
+  if(flat.length===0){ box.innerHTML = `<div class="contact-empty">Nenhum sinal ainda. Gere um plano de prospecção acima.</div>`; return; }
+  box.innerHTML = flat.slice(-6).reverse().map(s=>`
+    <div class="action-row">
+      <span class="signal-tag">${escapeHtml(MOMENTO_LABEL[s.tipo]||'Sinal')}</span>
+      <div>
+        <b>${escapeHtml(s.empresa)}</b> — ${escapeHtml(s.descricao||'')}
+        <div class="signal-meta">Potencial ${escapeHtml(s.potencial||'-')} · ${escapeHtml(s.area||'-')} · Decisor provável: ${escapeHtml(s.decisor_provavel||'-')}</div>
+      </div>
+    </div>`).join('');
+}
+function renderOppGrid(container, opps){
+  if(opps.length===0){ container.innerHTML = `<div class="contact-empty">Nenhuma oportunidade ainda.</div>`; return; }
+  container.innerHTML = opps.map(o=>`
+    <div class="opp-card" data-opp-panel="${o.id}" style="cursor:pointer;">
+      <div class="opp-head">
+        <div><h4>${escapeHtml(o.empresa)}</h4><div class="setor">${escapeHtml(o.setor||'-')}</div></div>
+        <div class="fit-badge">${o.fitScore||0}%</div>
+      </div>
+      <div class="resumo">${escapeHtml(o.resumo||'')}</div>
+      <div class="opp-tags">${(o.momentoTags||[]).map(t=>`<span class="opp-tag">${escapeHtml(t)}</span>`).join('')}</div>
+      <div class="opp-actions">
+        <button class="mini-btn active-btn" data-panel="${o.id}">Ver painel</button>
+        <button class="mini-btn" data-goto-radar="${o.id}">Ver oportunidade</button>
+      </div>
+    </div>`).join('');
+  container.querySelectorAll('[data-goto-radar]').forEach(b=>{
+    b.addEventListener('click', (e)=>{ e.stopPropagation(); state.section='radar'; renderSection(); });
+  });
+  container.querySelectorAll('[data-panel]').forEach(b=>{
+    b.addEventListener('click', (e)=>{ e.stopPropagation(); const o = state.radar.find(x=>x.id===b.dataset.panel); if(o) openProspectPanel(o, null); });
+  });
+  container.querySelectorAll('[data-opp-panel]').forEach(card=>{
+    card.addEventListener('click', ()=>{ const o = state.radar.find(x=>x.id===card.dataset.oppPanel); if(o) openProspectPanel(o, null); });
+  });
+}
+function renderNextActions(){
+  const box = document.getElementById('nextActions');
+  const items = [];
+  opportunitiesActive().forEach(o=>{
+    (o.sinais||[]).forEach(s=>{ if(!s.done && s.acao_recomendada) items.push(`${s.acao_recomendada} — ${o.empresa}`); });
+  });
+  allContactsFlat().forEach(c=>{
+    if((c.status==='apresentacao'||c.status==='follow1') && daysSince(c.lastSentAt)>=FOLLOWUP_DUE_DAYS){
+      items.push(`Fazer follow-up com ${c.nome}${c.empresa?' ('+c.empresa+')':''}`);
+    }
+  });
+  if(items.length===0){ box.innerHTML = `<div class="contact-empty">Nada pendente agora. Gere um plano de prospecção ou adicione prospects.</div>`; return; }
+  box.innerHTML = items.slice(0,6).map((t,i)=>`<div class="action-row"><span class="action-n">${String(i+1).padStart(2,'0')}</span>${escapeHtml(t)}</div>`).join('');
+}
+async function runResearchFlow(){
+  const input = document.getElementById('researchInput');
+  const log = document.getElementById('researchLog');
+  const btn = document.getElementById('researchBtn');
+  const queries = input.value.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,5);
+  if(queries.length===0){ input.focus(); return; }
+  btn.disabled = true; log.innerHTML = '';
+  for(let i=0;i<queries.length;i++){
+    const q = queries[i];
+    const line = document.createElement('div');
+    line.textContent = `Pesquisando "${q}"… (${i+1}/${queries.length})`;
+    log.appendChild(line);
+    try{
+      const opp = await researchOpportunity(q);
+      line.textContent = `✓ ${q} — ${opp.sinais.length} sinal(is) encontrado(s)`;
+      line.className = 'ok';
+      state.radar.push(opp);
+      saveRadar();
+    }catch(e){
+      line.textContent = `Não consegui pesquisar "${q}" agora (${e.message||'erro de conexão'}).`;
+      line.className = 'err';
+    }
+  }
+  btn.disabled = false; input.value = '';
+  renderInteligencia(document.getElementById('mainArea'));
+}
+
+// =========================================================
+// 02 RADAR
+// =========================================================
+function renderFilterChips(containerId, options, category){
+  const c = document.getElementById(containerId);
+  c.innerHTML = options.map(o=>`<button class="filter-chip${state.radarFilters[category].has(o)?' on':''}" data-cat="${category}" data-val="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join('');
+  c.querySelectorAll('.filter-chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      const set = state.radarFilters[chip.dataset.cat];
+      if(set.has(chip.dataset.val)) set.delete(chip.dataset.val); else set.add(chip.dataset.val);
+      renderRadar(document.getElementById('mainArea'));
+    });
+  });
+}
+function renderOppDetailCard(o){
+  return `
+    <div class="opp-card" id="opp-${o.id}" style="margin-bottom:16px;">
+      <div class="opp-head">
+        <div><h4>${escapeHtml(o.empresa)}</h4><div class="setor">${escapeHtml(o.setor||'-')}</div></div>
+        <div class="fit-badge">${o.fitScore||0}%</div>
+      </div>
+      <div class="resumo">${escapeHtml(o.resumo||'')}</div>
+      <div class="opp-tags">
+        ${(o.segmentoTags||[]).map(t=>`<span class="opp-tag">${escapeHtml(t)}</span>`).join('')}
+        ${(o.perfilTags||[]).map(t=>`<span class="opp-tag">${escapeHtml(t)}</span>`).join('')}
+        ${(o.momentoTags||[]).map(t=>`<span class="opp-tag">${escapeHtml(t)}</span>`).join('')}
+      </div>
+      <div class="opp-detail">
+        ${(o.sinais||[]).map((s,idx)=>`
+          <div class="sinal-item${s.done?' done':''}">
+            <input type="checkbox" data-sinal-idx="${idx}" ${s.done?'checked':''}>
+            <div>
+              <b>${escapeHtml(s.descricao)}</b><br>
+              Potencial ${escapeHtml(s.potencial)} · ${escapeHtml(s.area)} · Decisor: ${escapeHtml(s.decisor_provavel)}<br>
+              Ação: ${escapeHtml(s.acao_recomendada)}
+              ${s.fonte ? ` · <a href="${escapeHtml(s.fonte)}" target="_blank" rel="noopener">fonte</a>` : ''}
+            </div>
+          </div>`).join('') || '<div class="contact-empty" style="padding:0;">Nenhum sinal específico encontrado nessa pesquisa.</div>'}
+        <div style="font-size:12px;color:var(--mute-dim);margin-top:6px;">${escapeHtml(o.fitJustificativa||'')}</div>
+      </div>
+      <div class="opp-actions">
+        <button class="mini-btn" data-panel>Ver painel</button>
+        <button class="mini-btn active-btn" data-move>Mover para Prospects</button>
+        <button class="mini-btn danger" data-discard>Descartar</button>
+      </div>
+    </div>`;
+}
+function renderRadarList(){
+  const box = document.getElementById('radarList');
+  let opps = opportunitiesActive();
+  ['segmento','perfil','momento'].forEach(cat=>{
+    const set = state.radarFilters[cat];
+    if(set.size>0){
+      const tagKey = cat==='segmento'?'segmentoTags':cat==='perfil'?'perfilTags':'momentoTags';
+      opps = opps.filter(o=>(o[tagKey]||[]).some(t=>set.has(t)));
+    }
+  });
+  if(opps.length===0){ box.innerHTML = `<div class="contact-empty">Nenhuma oportunidade encontrada com esses filtros. Pesquise uma empresa acima.</div>`; return; }
+  box.innerHTML = opps.slice().reverse().map(renderOppDetailCard).join('');
+  opps.forEach(o=>{
+    const card = document.getElementById('opp-'+o.id); if(!card) return;
+    card.querySelectorAll('[data-sinal-idx]').forEach(cb=>{
+      cb.addEventListener('change', (e)=>{ o.sinais[Number(cb.dataset.sinalIdx)].done = e.target.checked; saveRadar(); });
+    });
+    const panelBtn = card.querySelector('[data-panel]');
+    if(panelBtn) panelBtn.addEventListener('click', ()=>openProspectPanel(o, null));
+    const moveBtn = card.querySelector('[data-move]');
+    if(moveBtn) moveBtn.addEventListener('click', ()=>openMoveToProspects(o));
+    const discardBtn = card.querySelector('[data-discard]');
+    if(discardBtn) discardBtn.addEventListener('click', ()=>{
+      if(confirm(`Descartar oportunidade "${o.empresa}"?`)){ o.status='descartado'; saveRadar(); renderRadarList(); }
+    });
+  });
+}
+function openMoveToProspects(o){
+  const primeiro = (o.sinais||[])[0];
+  const nome = window.prompt(`Nome do contato em ${o.empresa} (pode deixar em branco):`, primeiro ? primeiro.decisor_provavel : '');
+  if(nome===null) return;
+  const frontLabels = FRONTS.map((f,i)=>`${i+1}. ${f.label}`).join('\n');
+  const choice = window.prompt(`Para qual frente mover?\n${frontLabels}\n\nDigite o número:`, '1');
+  if(choice===null) return;
+  const idx = Math.max(0, Math.min(FRONTS.length-1, (parseInt(choice,10)||1)-1));
+  addContactFromOpportunity(FRONTS[idx].id, o, nome);
+  o.status = 'movido'; saveRadar();
+  alert(`Contato adicionado em "${FRONTS[idx].label}" como nível Consultivo, com observação e hipótese pré-preenchidas.`);
+  renderRadarList();
+}
+function renderRadar(el){
+  el.innerHTML = `
+    <div class="eyebrow"><span class="node-dot"></span>Radar</div>
+    <h2 class="display" style="text-align:left;margin-bottom:20px;">Quem está dando sinal de que pode precisar de você.</h2>
+    <div class="research-form" style="max-width:480px;margin-bottom:28px;">
+      <textarea id="radarSearchInput" placeholder="Pesquisar uma empresa ou segmento" style="min-height:44px;"></textarea>
+      <button class="btn-primary" id="radarSearchBtn">Pesquisar</button>
+      <div class="research-log" id="radarSearchLog"></div>
+    </div>
+    <div class="filter-group"><div class="filter-group-label">Segmento</div><div class="chip-row" id="filterSegmento"></div></div>
+    <div class="filter-group"><div class="filter-group-label">Perfil</div><div class="chip-row" id="filterPerfil"></div></div>
+    <div class="filter-group"><div class="filter-group-label">Momento</div><div class="chip-row" id="filterMomento"></div></div>
+    <div id="radarList" style="margin-top:24px;"></div>
+  `;
+  renderFilterChips('filterSegmento', SEGMENTOS, 'segmento');
+  renderFilterChips('filterPerfil', PERFIS, 'perfil');
+  renderFilterChips('filterMomento', MOMENTOS, 'momento');
+  renderRadarList();
+  document.getElementById('radarSearchBtn').addEventListener('click', async ()=>{
+    const input = document.getElementById('radarSearchInput');
+    const log = document.getElementById('radarSearchLog');
+    const q = input.value.trim(); if(!q) return;
+    const btn = document.getElementById('radarSearchBtn');
+    btn.disabled = true; log.textContent = `Pesquisando "${q}"…`; log.className='';
+    try{
+      const opp = await researchOpportunity(q);
+      state.radar.push(opp); saveRadar();
+      log.textContent = `✓ ${opp.sinais.length} sinal(is) encontrado(s)`; log.className='ok';
+      input.value=''; renderRadarList();
+    }catch(e){
+      log.textContent = `Não consegui pesquisar agora (${e.message||'erro'}).`; log.className='err';
+    }
+    btn.disabled = false;
+  });
+}
+
+// =========================================================
+// 03 CANAIS
+// =========================================================
+function renderCanais(el){
+  el.innerHTML = `
+    <div class="eyebrow"><span class="node-dot"></span>Canais</div>
+    <h2 class="display" style="text-align:left;margin-bottom:24px;">Onde usar cada canal.</h2>
+    <div class="section-sub" style="margin-top:0;">Canais de contato direto</div>
+    <div class="canal-card">
+      <h4>LinkedIn</h4>
+      <p>Melhor canal para aquecimento (seguir, curtir, comentar) e para a primeira abordagem consultiva, principalmente com decisores.</p>
+      <a href="https://www.linkedin.com/in/fl%C3%A1vio-guedes/" target="_blank" rel="noopener" class="front-link">Seu perfil ↗</a>
+    </div>
+    <div class="canal-card">
+      <h4>E-mail</h4>
+      <p>Bom para propostas mais formais, follow-ups com anexos ou quando o contato pediu para enviar por e-mail.</p>
+      <a href="mailto:flavioguedesmkt@gmail.com" class="front-link">flavioguedesmkt@gmail.com</a>
+    </div>
+    <div class="canal-card">
+      <h4>WhatsApp</h4>
+      <p>Ideal quando já existe alguma relação ou indicação. Direto demais para o primeiro contato frio com decisor desconhecido.</p>
+      <a href="https://wa.me/5521999719474" target="_blank" rel="noopener" class="front-link">21 99971-9474 ↗</a>
+    </div>
+
+    <div class="section-sub">Mapa de canais de prospecção</div>
+    <p class="lede" style="margin:0 0 18px;">Para cada canal: o que buscar (objetivo), quais sinais olhar e o que fazer quando encontrar um.</p>
+    <div class="channel-grid" id="channelGrid"></div>
+  `;
+  const grid = document.getElementById('channelGrid');
+  grid.innerHTML = CHANNEL_MAP.map(ch=>`
+    <div class="channel-card">
+      <h5>${escapeHtml(ch.nome)}</h5>
+      <div class="channel-block">
+        <div class="channel-block-label">Objetivo</div>
+        <p>${escapeHtml(ch.objetivo)}</p>
+      </div>
+      <div class="channel-block">
+        <div class="channel-block-label">Sinais</div>
+        <ul>${ch.sinais.map(s=>`<li>${escapeHtml(s)}</li>`).join('')}</ul>
+      </div>
+      <div class="channel-block">
+        <div class="channel-block-label">Ações</div>
+        <ul>${ch.acoes.map(a=>`<li>${escapeHtml(a)}</li>`).join('')}</ul>
+      </div>
+    </div>`).join('');
+}
+
+// =========================================================
+// 04 PROSPECTS
+// =========================================================
+function renderProspList(){
+  const box = document.getElementById('prospList'); if(!box) return;
+  const search = (document.getElementById('prospSearch').value||'').toLowerCase();
+  const frontF = document.getElementById('prospFrontFilter').value;
+  const nivelF = document.getElementById('prospNivelFilter').value;
+  let list = allContactsFlat();
+  if(frontF) list = list.filter(c=>c.frontId===frontF);
+  if(nivelF) list = list.filter(c=>c.nivel===nivelF);
+  if(search) list = list.filter(c=>(c.nome||'').toLowerCase().includes(search) || (c.empresa||'').toLowerCase().includes(search));
+  if(list.length===0){ box.innerHTML = `<div class="contact-empty">Nenhum contato encontrado.</div>`; return; }
+  box.innerHTML = `<div class="contact-list">` + list.map(c=>{
+    const due = (c.status==='apresentacao'||c.status==='follow1') && daysSince(c.lastSentAt)>=FOLLOWUP_DUE_DAYS;
+    return `
+    <div class="contact-row">
+      <div class="contact-main">
+        <div class="contact-name">${escapeHtml(c.nome)}</div>
+        <div class="contact-empresa">${escapeHtml(c.empresa||'')}${c.empresa?' · ':''}${escapeHtml(c.frontLabel)}</div>
+      </div>
+      <span class="nivel-badge nivel-${c.nivel}">${NIVEL_LABEL[c.nivel]}</span>
+      <span class="status-badge status-${c.status}">${STAGE_LABEL[c.status]}</span>
+      <span class="last-sent">${formatLastSent(c.lastSentAt)}</span>
+      ${due?`<span class="due-badge">Follow-up pendente · ${daysSince(c.lastSentAt)}d</span>`:''}
+      <div class="contact-actions">
+        <button class="mini-btn" data-panel="${c.frontId}|${c.id}">Ver painel</button>
+        <button class="mini-btn" data-goto="${c.frontId}|${c.id}">Abrir em Mensagens</button>
+      </div>
+    </div>`;
+  }).join('') + `</div>`;
+  box.querySelectorAll('[data-goto]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const [frontId, contactId] = btn.dataset.goto.split('|');
+      state.section='mensagens'; state.activeFrontId=frontId; state.activeContactByFront[frontId]=contactId;
+      renderSection();
+    });
+  });
+  box.querySelectorAll('[data-panel]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const [frontId, contactId] = btn.dataset.panel.split('|');
+      const c = getContacts(frontId).find(x=>x.id===contactId); if(!c) return;
+      const cWithFront = Object.assign({}, c, {frontId});
+      openProspectPanel(findOppForContact(c), cWithFront);
+    });
+  });
+}
+function renderProspects(el){
+  el.innerHTML = `
+    <div class="eyebrow"><span class="node-dot"></span>Prospects</div>
+    <h2 class="display" style="text-align:left;margin-bottom:20px;">Todos os contatos, em um lugar só.</h2>
+    <div class="contact-form" style="border:1px solid var(--panel-line);background:var(--panel);margin-bottom:20px;">
+      <input type="text" id="prospSearch" placeholder="Buscar por nome ou empresa">
+      <select id="prospFrontFilter"><option value="">Todas as frentes</option>${FRONTS.map(f=>`<option value="${f.id}">${escapeHtml(f.label)}</option>`).join('')}</select>
+      <select id="prospNivelFilter"><option value="">Todos os níveis</option>${Object.keys(NIVEL_LABEL).map(k=>`<option value="${k}">${NIVEL_LABEL[k]}</option>`).join('')}</select>
+    </div>
+    <div class="contacts-panel" style="margin-top:0;" id="prospList"></div>
+  `;
+  ['prospSearch','prospFrontFilter','prospNivelFilter'].forEach(id=>{
+    document.getElementById(id).addEventListener('input', renderProspList);
+    document.getElementById(id).addEventListener('change', renderProspList);
+  });
+  renderProspList();
+}
+
+// =========================================================
+// 05 AQUECIMENTO — funil de relacionamento (Etapa 1.4)
+// =========================================================
+function renderAquecimento(el){
+  const counts = computeFunilNiveis();
+  const list = allContactsFlat().filter(c=>contactAquecNivel(c)<=3);
+  el.innerHTML = `
+    <div class="eyebrow"><span class="node-dot"></span>Aquecimento</div>
+    <h2 class="display" style="text-align:left;margin-bottom:10px;">Quantos relacionamentos você está construindo — não só quantas mensagens mandou.</h2>
+    <p class="lede" style="margin:0 0 24px;">O funil abaixo é calculado a partir do que já está no Radar, nos Prospects e nas Mensagens — sem precisar preencher nada a mais.</p>
+    <div class="funnel-row" id="funnelRow"></div>
+    <div class="eyebrow"><span class="node-dot"></span>Esquentando agora</div>
+    <p class="lede" style="margin:0 0 16px;font-size:13px;">Marque o que você já fez com cada contato antes de mandar a primeira mensagem — isso empurra o nível dele no funil.</p>
+    <div class="contacts-panel" style="margin-top:0;"><div class="contact-list" id="warmList"></div></div>
+  `;
+  const fBox = document.getElementById('funnelRow');
+  fBox.innerHTML = counts.map((n,i)=>`${i>0?'<div class="funnel-arrow">→</div>':''}<div class="funnel-step"><div class="fn-num">${n}</div><div class="fn-lbl">Nível ${i}<br>${escapeHtml(NIVEL_AQUEC_LABEL[i])}</div></div>`).join('');
+
+  const box = document.getElementById('warmList');
+  if(list.length===0){ box.innerHTML = `<div class="contact-empty">Nenhum contato pendente de aquecimento. Todos já estão em Abordagem ou Conversa.</div>`; return; }
+  box.innerHTML = list.map(c=>`
+    <div class="contact-row">
+      <div class="contact-main">
+        <div class="contact-name">${escapeHtml(c.nome)}</div>
+        <div class="contact-empresa">${escapeHtml(c.empresa||'')}${c.empresa?' · ':''}${escapeHtml(c.frontLabel)}</div>
+      </div>
+      <span class="nivel-pill">Nível ${contactAquecNivel(c)} · ${escapeHtml(NIVEL_AQUEC_LABEL[contactAquecNivel(c)])}</span>
+      <div class="warm-checks" data-warm="${c.frontId}|${c.id}">
+        <label><input type="checkbox" data-k="seguiu" ${c.aquecimento&&c.aquecimento.seguiu?'checked':''}> Segui</label>
+        <label><input type="checkbox" data-k="curtiu" ${c.aquecimento&&c.aquecimento.curtiu?'checked':''}> Curti um post</label>
+        <label><input type="checkbox" data-k="comentou" ${c.aquecimento&&c.aquecimento.comentou?'checked':''}> Comentei</label>
+        <label><input type="checkbox" data-k="viu" ${c.aquecimento&&c.aquecimento.viu?'checked':''}> Vi conteúdo recente</label>
+      </div>
+      <button class="mini-btn" data-panel="${c.frontId}|${c.id}">Ver painel</button>
+    </div>`).join('');
+  box.querySelectorAll('[data-warm]').forEach(wrap=>{
+    const [frontId, contactId] = wrap.dataset.warm.split('|');
+    wrap.querySelectorAll('input').forEach(inp=>{
+      inp.addEventListener('change', ()=>{
+        const c = getContacts(frontId).find(x=>x.id===contactId); if(!c) return;
+        c.aquecimento = c.aquecimento || {};
+        c.aquecimento[inp.dataset.k] = inp.checked;
+        saveContacts();
+        renderAquecimento(document.getElementById('mainArea'));
+      });
+    });
+  });
+  box.querySelectorAll('[data-panel]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const [frontId, contactId] = btn.dataset.panel.split('|');
+      const c = getContacts(frontId).find(x=>x.id===contactId); if(!c) return;
+      const cWithFront = Object.assign({}, c, {frontId});
+      openProspectPanel(findOppForContact(c), cWithFront);
+    });
+  });
+}
+
+// =========================================================
+// GANCHOS — "O que posso falar com essa pessoa?" (Etapa 2.2)
+// =========================================================
+function buildGanchosPrompt(nome, cargo, empresa){
+  return `Você é um analista de inteligência comercial. Pesquise na web informações reais e atuais sobre "${nome}"${cargo?`, ${cargo}`:''}${empresa?` na empresa ${empresa}`:''}.
+
+Gere ganchos de conversa reais (nunca invente fatos). Se não encontrar nada confiável sobre a pessoa, baseie-se no momento da empresa.
+
+Responda apenas com um JSON válido, sem texto antes ou depois, neste formato exato:
+{"ganchos":[
+  {"categoria":"conteudo_recente","titulo":"...","texto":"...(o que foi encontrado + sugestão de comentário)"},
+  {"categoria":"movimento","titulo":"...","texto":"...(movimento da empresa + ângulo de conversa)"},
+  {"categoria":"hipotese_dor","titulo":"...","texto":"...(hipótese de dor + pergunta sugerida)"},
+  {"categoria":"autoridade","titulo":"...","texto":"...(tema que valeria a pena publicar sobre isso)"}
+]}
+Máximo 1 item por categoria, textos curtos (até 30 palavras).`;
+}
+const GANCHO_CAT_LABEL = {conteudo_recente:'Conteúdo recente', movimento:'Movimento', hipotese_dor:'Hipótese de dor', autoridade:'Autoridade'};
+async function generateGanchos(nome, cargo, empresa){
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      model:'claude-sonnet-4-6', max_tokens:1000,
+      messages:[{role:'user', content: buildGanchosPrompt(nome, cargo, empresa)}],
+      tools:[{type:'web_search_20250305', name:'web_search'}]
+    })
+  });
+  if(!response.ok) throw new Error('falha na API');
+  const data = await response.json();
+  const text = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n');
+  const cleaned = text.replace(/```json|```/g,'').trim();
+  const match = cleaned.match(/\{[\s\S]*\}/);
+  if(!match) throw new Error('resposta sem JSON válido');
+  const parsed = JSON.parse(match[0]);
+  return (parsed.ganchos||[]).map(g=>({categoria:g.categoria||'outro', titulo:g.titulo||'', texto:g.texto||''}));
+}
+function renderGanchosResult(ganchos){
+  const box = document.getElementById('ganchosResult');
+  if(!ganchos || ganchos.length===0){ box.innerHTML = `<div class="contact-empty">Nenhum gancho encontrado.</div>`; return; }
+  box.innerHTML = ganchos.map(g=>`
+    <div class="gancho-card">
+      <div class="gancho-cat">${escapeHtml(GANCHO_CAT_LABEL[g.categoria]||g.categoria)}</div>
+      <div class="gancho-titulo">${escapeHtml(g.titulo)}</div>
+      <div class="gancho-texto">${escapeHtml(g.texto)}</div>
+    </div>`).join('');
+}
+function renderGanchos(el){
+  el.innerHTML = `
+    <div class="eyebrow"><span class="node-dot"></span>Ganchos</div>
+    <h2 class="display" style="text-align:left;margin-bottom:10px;">O que posso falar com essa pessoa?</h2>
+    <p class="lede" style="margin:0 0 24px;">Informe quem você quer abordar. A IA pesquisa na web e sugere ganchos reais de conversa — sem inventar fatos.</p>
+    <div class="contact-form" style="border:1px solid var(--panel-line);background:var(--panel);margin-bottom:8px;">
+      <input type="text" id="ganchoNome" placeholder="Nome da pessoa">
+      <input type="text" id="ganchoCargo" placeholder="Cargo (opcional)">
+      <input type="text" id="ganchoEmpresa" placeholder="Empresa (opcional)">
+    </div>
+    <button class="btn-primary" id="ganchoBtn" style="margin-bottom:12px;">Gerar ganchos</button>
+    <div class="research-log" id="ganchoLog" style="margin-bottom:20px;"></div>
+    <div id="ganchosResult"></div>
+  `;
+  document.getElementById('ganchoBtn').addEventListener('click', async ()=>{
+    const nome = document.getElementById('ganchoNome').value.trim();
+    const cargo = document.getElementById('ganchoCargo').value.trim();
+    const empresa = document.getElementById('ganchoEmpresa').value.trim();
+    const log = document.getElementById('ganchoLog'); const btn = document.getElementById('ganchoBtn');
+    if(!nome){ document.getElementById('ganchoNome').focus(); return; }
+    btn.disabled = true; log.textContent = `Pesquisando sobre ${nome}…`; log.className='';
+    try{
+      const ganchos = await generateGanchos(nome, cargo, empresa);
+      log.textContent = ''; renderGanchosResult(ganchos);
+    }catch(e){
+      log.textContent = `Não consegui pesquisar agora (${e.message||'erro'}).`; log.className='err';
+    }
+    btn.disabled = false;
+  });
+}
+
+// =========================================================
+// 07 CONTEÚDO
+// =========================================================
+function renderIdeaList(){
+  const box = document.getElementById('ideaList'); if(!box) return;
+  if(state.contentIdeas.length===0){ box.innerHTML = `<div class="contact-empty">Nenhuma ideia gerada ainda.</div>`; return; }
+  box.innerHTML = state.contentIdeas.map(i=>{
+    const rel = prospectsRelacionados(i);
+    return `<div class="idea-card" id="idea-${i.id}">
+      <h5>${escapeHtml(i.titulo)}</h5>
+      <p>${escapeHtml(i.angulo)}</p>
+      ${rel.length? `<div style="margin-top:10px;">
+        <div class="channel-block-label">Prospects relacionados</div>
+        <div class="modal-tags">${rel.map(o=>`<span class="opp-tag" style="cursor:pointer;" data-idea-opp="${o.id}">${escapeHtml(o.empresa)}</span>`).join('')}</div>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+  box.querySelectorAll('[data-idea-opp]').forEach(tag=>{
+    tag.addEventListener('click', ()=>{ const o = state.radar.find(x=>x.id===tag.dataset.ideaOpp); if(o) openProspectPanel(o, null); });
+  });
+}
+async function runIdeaGeneration(){
+  const btn = document.getElementById('ideaBtn'); const log = document.getElementById('ideaLog');
+  btn.disabled = true; log.textContent = 'Gerando ideias…'; log.className='';
+  try{
+    const ideas = await generateContentIdeas();
+    state.contentIdeas = ideas.concat(state.contentIdeas).slice(0,20);
+    saveIdeas(); log.textContent = ''; renderIdeaList();
+  }catch(e){
+    log.textContent = `Não consegui gerar agora (${e.message||'erro'}).`; log.className='err';
+  }
+  btn.disabled = false;
+}
+function renderConteudo(el){
+  el.innerHTML = `
+    <div class="eyebrow"><span class="node-dot"></span>Conteúdo</div>
+    <h2 class="display" style="text-align:left;margin-bottom:10px;">Ideias conectadas ao que está acontecendo.</h2>
+    <p class="lede" style="margin:0 0 24px;">Geradas por IA a partir dos sinais reais do Radar. Use como ponto de partida, não como texto final.</p>
+    <button class="btn-primary" id="ideaBtn" style="margin-bottom:20px;">Gerar ideias de conteúdo</button>
+    <div class="research-log" id="ideaLog" style="margin-bottom:20px;"></div>
+    <div id="ideaList"></div>
+  `;
+  document.getElementById('ideaBtn').addEventListener('click', runIdeaGeneration);
+  renderIdeaList();
+}
+
+// =========================================================
+// 07 MENSAGENS
+// =========================================================
+function updateConsultivaCardBody(contact, frontId){
+  const apCard = document.getElementById('card-apresentacao');
+  const f1Card = document.getElementById('card-follow1');
+  if(apCard){
+    apCard.querySelector('.card-body').textContent = buildConsultivaApresentacao(contact);
+    const btn = apCard.querySelector('.copy-btn'); const clone = btn.cloneNode(true);
+    btn.parentNode.replaceChild(clone, btn);
+    clone.addEventListener('click', ()=>{ copyText(buildConsultivaApresentacao(contact), clone); advanceContactStage(frontId, contact.id, 'apresentacao'); });
+  }
+  if(f1Card){
+    f1Card.querySelector('.card-body').textContent = buildConsultivaFollow1(contact);
+    const btn = f1Card.querySelector('.copy-btn'); const clone = btn.cloneNode(true);
+    btn.parentNode.replaceChild(clone, btn);
+    clone.addEventListener('click', ()=>{ copyText(buildConsultivaFollow1(contact), clone); advanceContactStage(frontId, contact.id, 'follow1'); });
+  }
+}
+function renderContactsPanel(frontId){
+  const panel = document.getElementById('contactsPanel');
+  if(!state.storageReady){ panel.innerHTML = `<div class="contact-empty">Carregando contatos…</div>`; return; }
+  const list = getContacts(frontId);
+  const stats = frontStats(frontId);
+  panel.innerHTML = `
+    <div class="contacts-head">
+      <h3>Contatos desta frente</h3>
+      <div class="stat-chips">
+        <span class="stat-chip"><b>${stats.total}</b> contatos</span>
+        <span class="stat-chip"><b>${stats.enviados}</b> enviados</span>
+        <span class="stat-chip"><b>${stats.respondidos}</b> respostas</span>
+        <span class="stat-chip"><b>${stats.taxa}%</b> taxa de resposta</span>
+      </div>
+    </div>
+    <div class="contact-form" style="flex-direction:column;align-items:stretch;">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <input type="text" id="newContactNome" placeholder="Nome do contato">
+        <input type="text" id="newContactEmpresa" placeholder="Empresa (opcional)">
+      </div>
+      <div class="checklist-block">
+        <div class="checklist-title">Critério rápido, antes de escrever qualquer coisa</div>
+        ${CHECKLIST_QUESTIONS.map(q=>`<label class="check-row"><input type="checkbox" data-cq="${q.key}"> ${escapeHtml(q.label)}</label>`).join('')}
+        <div class="nivel-preview" id="nivelPreview">Marque os itens acima para ver o nível sugerido.</div>
+      </div>
+      <button id="addContactBtn" style="align-self:flex-start;">Adicionar contato</button>
+    </div>
+    <div class="contact-list" id="contactList"></div>
+  `;
+  const checkboxes = Array.from(panel.querySelectorAll('[data-cq]'));
+  const updatePreview = ()=>{
+    const checklist = {}; checkboxes.forEach(cb=>checklist[cb.dataset.cq]=cb.checked);
+    const nivel = computeNivel(checklist);
+    document.getElementById('nivelPreview').innerHTML = `Nível sugerido: <b>${NIVEL_LABEL[nivel]}</b>`;
+  };
+  checkboxes.forEach(cb=>cb.addEventListener('change', updatePreview));
+  document.getElementById('addContactBtn').addEventListener('click', ()=>{
+    const nomeEl = document.getElementById('newContactNome');
+    const empresaEl = document.getElementById('newContactEmpresa');
+    if(!nomeEl.value.trim()){ nomeEl.focus(); return; }
+    const checklist = {}; checkboxes.forEach(cb=>checklist[cb.dataset.cq]=cb.checked);
+    addContact(frontId, nomeEl.value, empresaEl.value, checklist);
+    renderMensagensContent();
+  });
+  const listEl = document.getElementById('contactList');
+  if(list.length===0){ listEl.innerHTML = `<div class="contact-empty">Nenhum contato ainda.</div>`; return; }
+  listEl.innerHTML = '';
+  list.slice().reverse().forEach(c=>{
+    const isActive = state.activeContactByFront[frontId]===c.id;
+    const due = (c.status==='apresentacao'||c.status==='follow1') && daysSince(c.lastSentAt)>=FOLLOWUP_DUE_DAYS;
+    const row = document.createElement('div');
+    row.className = 'contact-row' + (isActive?' is-active':'');
+    row.innerHTML = `
+      <div class="contact-main">
+        <div class="contact-name">${escapeHtml(c.nome)}</div>
+        ${c.empresa?`<div class="contact-empresa">${escapeHtml(c.empresa)}</div>`:''}
+      </div>
+      <span class="nivel-badge nivel-${c.nivel}">${NIVEL_LABEL[c.nivel]}</span>
+      <span class="status-badge status-${c.status}">${STAGE_LABEL[c.status]}</span>
+      <span class="last-sent">${formatLastSent(c.lastSentAt)}</span>
+      ${due?`<span class="due-badge">Follow-up pendente · ${daysSince(c.lastSentAt)}d</span>`:''}
+      <div class="contact-actions">
+        <button class="mini-btn${isActive?' active-btn':''}" data-action="use">${isActive?'Contato ativo ✓':'Usar este contato'}</button>
+        <select data-action="nivel">${Object.keys(NIVEL_LABEL).map(k=>`<option value="${k}" ${k===c.nivel?'selected':''}>${NIVEL_LABEL[k]}</option>`).join('')}</select>
+        <select data-action="status">${STAGES.map(s=>`<option value="${s}" ${s===c.status?'selected':''}>${STAGE_LABEL[s]}</option>`).join('')}</select>
+        <button class="mini-btn danger" data-action="remove">Remover</button>
+      </div>
+    `;
+    row.querySelector('[data-action="use"]').addEventListener('click', ()=>{ setActiveContact(frontId, c.id); renderMensagensContent(); });
+    row.querySelector('[data-action="nivel"]').addEventListener('change', (e)=>{ c.nivel = e.target.value; saveContacts(); renderMensagensContent(); });
+    row.querySelector('[data-action="status"]').addEventListener('change', (e)=>{ setContactStatus(frontId, c.id, e.target.value); renderMensagensContent(); });
+    row.querySelector('[data-action="remove"]').addEventListener('click', ()=>{ if(confirm(`Remover "${c.nome}"?`)){ removeContact(frontId, c.id); renderMensagensContent(); } });
+    listEl.appendChild(row);
+  });
+}
+function renderMensagensContent(){
+  const f = FRONTS.find(x=>x.id===state.activeFrontId);
+  document.getElementById('frontEyebrow').textContent = f.special ? 'Mensagem transversal' : 'Frente de prospecção';
+  document.getElementById('frontTitle').textContent = f.label;
+  document.getElementById('frontDesc').textContent = f.desc;
+  const link = document.getElementById('frontLink');
+  link.href = f.link; link.textContent = f.linkLabel + ' ↗';
+
+  const activeId = state.activeContactByFront[f.id];
+  const activeContact = activeId ? getContacts(f.id).find(c=>c.id===activeId) : null;
+
+  const warnBox = document.getElementById('warnBanner');
+  const caseBox = document.getElementById('caseBuilder');
+  warnBox.innerHTML = ''; caseBox.innerHTML = '';
+
+  let items;
+  if(activeContact && activeContact.nivel==='consultivo'){
+    caseBox.innerHTML = `
+      <div class="case-builder">
+        <h4>Case desse contato</h4>
+        <div class="case-field"><label>O que você notou (observação real)</label><textarea id="obsField">${escapeHtml(activeContact.obs||'')}</textarea></div>
+        <div class="case-field"><label>Sua hipótese inicial</label><textarea id="hipField">${escapeHtml(activeContact.hipotese||'')}</textarea></div>
+      </div>`;
+    const obsEl = document.getElementById('obsField');
+    const hipEl = document.getElementById('hipField');
+    let saveTimer = null;
+    const onEdit = ()=>{
+      activeContact.obs = obsEl.value; activeContact.hipotese = hipEl.value;
+      updateConsultivaCardBody(activeContact, f.id);
+      clearTimeout(saveTimer); saveTimer = setTimeout(saveContacts, 700);
+    };
+    obsEl.addEventListener('input', onEdit); hipEl.addEventListener('input', onEdit);
+    items = [
+      {label:'Apresentação (consultiva)', text: buildConsultivaApresentacao(activeContact), stage:'apresentacao', id:'apresentacao'},
+      {label:'Follow-up 1 (consultivo)', text: buildConsultivaFollow1(activeContact), stage:'follow1', id:'follow1'},
+      {label:'Follow-up 2', text: msgFollow2().split('[Nome]').join(activeContact.nome), stage:'follow2', id:'follow2'}
+    ];
+  } else if(activeContact && activeContact.nivel==='aguardar'){
+    warnBox.innerHTML = `<div class="warn-banner">Critério baixo pra esse contato agora. Considere esperar um gatilho melhor (post, vaga, indicação) antes de abordar.</div>`;
+    items = [
+      {label:'Apresentação', text:f.apresentacao.split('[Nome]').join(activeContact.nome), stage:'apresentacao', id:'apresentacao'},
+      {label:'Follow-up 1', text:f.followup1.split('[Nome]').join(activeContact.nome), stage:'follow1', id:'follow1'},
+      {label:'Follow-up 2', text:f.followup2.split('[Nome]').join(activeContact.nome), stage:'follow2', id:'follow2'}
+    ];
+  } else if(activeContact){
+    items = [
+      {label:'Apresentação', text:f.apresentacao.split('[Nome]').join(activeContact.nome), stage:'apresentacao', id:'apresentacao'},
+      {label:'Follow-up 1', text:f.followup1.split('[Nome]').join(activeContact.nome), stage:'follow1', id:'follow1'},
+      {label:'Follow-up 2', text:f.followup2.split('[Nome]').join(activeContact.nome), stage:'follow2', id:'follow2'}
+    ];
+  } else {
+    items = [
+      {label:'Apresentação', text:f.apresentacao, stage:'apresentacao', id:'apresentacao'},
+      {label:'Follow-up 1', text:f.followup1, stage:'follow1', id:'follow1'},
+      {label:'Follow-up 2', text:f.followup2, stage:'follow2', id:'follow2'}
+    ];
+  }
+
+  const cardsEl = document.getElementById('cards');
+  cardsEl.innerHTML = '';
+  items.forEach((item, idx)=>{
+    const card = document.createElement('div');
+    card.className = 'card'; card.id = 'card-' + item.id;
+    card.innerHTML = `
+      <div class="card-head">
+        <h3><span>${String(idx+1).padStart(2,'0')}</span> · ${escapeHtml(item.label)}${activeContact?'<span class="active-tag">Para '+escapeHtml(activeContact.nome)+'</span>':''}</h3>
+        <button class="copy-btn">Copiar</button>
+      </div>
+      <div class="card-body"></div>
+    `;
+    card.querySelector('.card-body').textContent = item.text;
+    card.querySelector('.copy-btn').addEventListener('click', (e)=>{
+      copyText(item.text, e.target);
+      if(activeContact) advanceContactStage(f.id, activeContact.id, item.stage);
+    });
+    cardsEl.appendChild(card);
+  });
+  renderContactsPanel(f.id);
+}
+function renderFrontTabs(){
+  const box = document.getElementById('frontTabs');
+  box.innerHTML = FRONTS.map(f=>`<button class="front-chip${f.id===state.activeFrontId?' active':''}${f.special?' special':''}" data-front="${f.id}">${escapeHtml(f.label)}</button>`).join('');
+  box.querySelectorAll('[data-front]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ state.activeFrontId = btn.dataset.front; renderFrontTabs(); renderMensagensContent(); });
+  });
+}
+function renderMensagens(el){
+  el.innerHTML = `
+    <div class="eyebrow"><span class="node-dot"></span>Mensagens</div>
+    <div class="front-tabs" id="frontTabs"></div>
+    <div class="front-head">
+      <div class="eyebrow" id="frontEyebrow"></div>
+      <h2 class="display front-title" id="frontTitle" style="text-align:left;"></h2>
+      <p class="front-desc" id="frontDesc"></p>
+      <a href="#" target="_blank" rel="noopener" class="front-link" id="frontLink"></a>
+    </div>
+    <div id="warnBanner"></div>
+    <div id="caseBuilder"></div>
+    <div class="cards" id="cards"></div>
+    <div class="contacts-panel" id="contactsPanel"></div>
+  `;
+  renderFrontTabs();
+  renderMensagensContent();
+}
+
+// =========================================================
+// 08 PIPELINE
+// =========================================================
+function renderPipeline(el){
+  const flat = allContactsFlat();
+  el.innerHTML = `
+    <div class="eyebrow"><span class="node-dot"></span>Pipeline</div>
+    <h2 class="display" style="text-align:left;margin-bottom:20px;">Todo mundo, por estágio.</h2>
+    <div class="kanban" id="kanban"></div>
+  `;
+  const box = document.getElementById('kanban');
+  box.innerHTML = STAGES.map(s=>{
+    const items = flat.filter(c=>c.status===s);
+    return `
+      <div class="kcol">
+        <div class="kcol-head"><b>${items.length}</b> · ${STAGE_LABEL[s]}</div>
+        <div>${items.map(c=>`
+          <div class="kcard" data-goto="${c.frontId}|${c.id}">
+            <div class="kname">${escapeHtml(c.nome)}</div>
+            <div class="kmeta">${escapeHtml(c.empresa||'')}${c.empresa?' · ':''}${escapeHtml(c.frontLabel)}</div>
+            <div class="kmeta">${formatLastSent(c.lastSentAt)}</div>
+          </div>`).join('') || '<div class="contact-empty" style="padding:14px;">Vazio</div>'}</div>
+      </div>`;
+  }).join('');
+  box.querySelectorAll('[data-goto]').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      const [frontId, contactId] = card.dataset.goto.split('|');
+      state.section='mensagens'; state.activeFrontId=frontId; state.activeContactByFront[frontId]=contactId;
+      renderSection();
+    });
+  });
+}
+
+// =========================================================
+// INIT
+// =========================================================
+let isDark = true;
+function toggleTheme(){
+  isDark = !isDark;
+  document.documentElement.style.setProperty('--void', isDark ? '#050810' : '#F3F6FB');
+  document.documentElement.style.setProperty('--panel', isDark ? '#0A1220' : '#FFFFFF');
+  document.documentElement.style.setProperty('--panel-alt', isDark ? '#0D1830' : '#F8FAFC');
+  document.documentElement.style.setProperty('--panel-line', isDark ? 'rgba(99,169,255,0.16)' : 'rgba(15,40,80,0.12)');
+  document.documentElement.style.setProperty('--blue', isDark ? '#2F7FFF' : '#1A5FD7');
+  document.documentElement.style.setProperty('--blue-bright', isDark ? '#6FB1FF' : '#2F7FFF');
+  document.documentElement.style.setProperty('--blue-deep', isDark ? '#0B3B8C' : '#E8F0FE');
+  document.documentElement.style.setProperty('--white', isDark ? '#F3F6FB' : '#0A1220');
+  document.documentElement.style.setProperty('--mute', isDark ? '#8996AC' : '#3A4255');
+  document.documentElement.style.setProperty('--mute-dim', isDark ? '#5C6880' : '#7B869A');
+  document.documentElement.style.setProperty('--green', isDark ? '#3ED598' : '#0D8A5C');
+  document.documentElement.style.setProperty('--purple', isDark ? '#C9A6FF' : '#5B2D8C');
+  document.documentElement.style.setProperty('--orange', isDark ? '#FF8A66' : '#B02A10');
+  document.body.style.background = isDark ? 'var(--void)' : 'var(--panel-alt)';
+  localStorage.setItem('prospect_theme', isDark ? 'dark' : 'light');
+}
+function loadTheme(){
+  const t = localStorage.getItem('prospect_theme');
+  if(t === 'light') toggleTheme();
+}
+
+function init(){
+  document.getElementById('hamburger').addEventListener('click', ()=>{ state.mobileOpen = !state.mobileOpen; renderRail(); });
+  document.getElementById('railBackdrop').addEventListener('click', ()=>{ state.mobileOpen = false; renderRail(); });
+  document.getElementById('prospectModalBackdrop').addEventListener('click', (e)=>{ if(e.target.id==='prospectModalBackdrop') closeProspectPanel(); });
+  renderSection();
+  loadTheme();
+  loadAll();
+}
+init();
+
+</script>
+
+</body>
+</html>

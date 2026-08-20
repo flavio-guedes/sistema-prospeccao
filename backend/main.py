@@ -3,8 +3,16 @@ from pydantic import BaseModel, EmailStr
 import os, requests, json, smtplib
 from email.mime.text import MIMEText
 from typing import Optional, List
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "") or os.getenv("HERMES_ANTHROPIC_API_KEY", "")
 SMTP_HOST = os.getenv("SMTP_HOST", "")

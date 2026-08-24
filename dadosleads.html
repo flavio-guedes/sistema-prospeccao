@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sistema de Prospecção — Dados & Leads</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    background:
+      radial-gradient(1200px 700px at 10% -10%, rgba(56,189,248,0.18), transparent 60%),
+      radial-gradient(1000px 600px at 110% 10%, rgba(99,102,241,0.18), transparent 55%),
+      linear-gradient(180deg, #0b1220 0%, #0f1b33 100%);
+    color: #e6f3ff;
+    padding: 24px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  .noise {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.08;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    background-size: 220px 220px;
+  }
+  .noise::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(34,211,238,0.08), transparent 55%);
+  }
+  #app { position: relative; z-index: 1; }
+  .container { max-width: 1400px; margin: 0 auto; }
+  h1 { font-size: 22px; margin-bottom: 6px; letter-spacing: 0.2px; color: #ffffff; }
+  .sub { color: #7d9cbd; font-size: 13px; margin-bottom: 22px; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 18px;
+    align-items: stretch;
+  }
+  .card {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 16px;
+    padding: 16px;
+    color: #e6f3ff;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.18);
+    transition: transform .12s ease, border-color .2s ease, box-shadow .2s ease;
+  }
+  .card:hover {
+    border-color: rgba(34,211,238,0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 14px 40px rgba(0,0,0,0.35), 0 0 0 1px rgba(34,211,238,0.25), inset 0 1px 0 rgba(255,255,255,0.22);
+  }
+  .card .name { font-weight: 700; font-size: 14px; color: #ffffff; }
+  .card .desc { font-size: 12px; color: #b6c9e2; }
+  .list { display: flex; flex-direction: column; gap: 8px; }
+  .list-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 12px;
+    color: #b6c9e2;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 12px;
+    padding: 10px;
+  }
+  .list-item .dot {
+    width: 8px; height: 8px; border-radius: 999px; flex-shrink: 0; margin-top: 5px;
+    background: rgba(34,211,238,0.8);
+    box-shadow: 0 0 0 1px rgba(34,211,238,0.25);
+  }
+  .badge {
+    display: inline-block;
+    align-self: flex-start;
+    font-size: 11px;
+    background: rgba(34,211,238,0.12);
+    color: #cffafe;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(34,211,238,0.25);
+  }
+  .note {
+    margin-top: 6px;
+    font-size: 11px;
+    color: #7d9cbd;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 12px;
+    padding: 10px;
+  }
+  @media (max-width: 760px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="noise"></div>
+<div id="app">
+  <div class="container">
+    <h1>Sistema de Prospecção — Dados & Leads</h1>
+    <div class="sub">Painel de referência para entender visitantes, origem, comportamento e interesse.</div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="name">Origem</div>
+        <div class="desc">De onde vem cada visita.</div>
+        <div class="list">
+          <div class="list-item"><div class="dot"></div>LinkedIn</div>
+          <div class="list-item"><div class="dot"></div>Google</div>
+          <div class="list-item"><div class="dot"></div>WhatsApp</div>
+          <div class="list-item"><div class="dot"></div>Instagram</div>
+          <div class="list-item"><div class="dot"></div>Acesso direto</div>
+          <div class="list-item"><div class="dot"></div>Outro site / campanha</div>
+        </div>
+        <span class="badge">Origem</span>
+      </div>
+
+      <div class="card">
+        <div class="name">Comportamento</div>
+        <div class="desc">Como o visitante navega pelo site.</div>
+        <div class="list">
+          <div class="list-item"><div class="dot"></div>Página de entrada</div>
+          <div class="list-item"><div class="dot"></div>Páginas visitadas</div>
+          <div class="list-item"><div class="dot"></div>Serviços visualizados</div>
+          <div class="list-item"><div class="dot"></div>Tempo de permanência</div>
+          <div class="list-item"><div class="dot"></div>Scroll 75%</div>
+          <div class="list-item"><div class="dot"></div>Cliques em CTA</div>
+        </div>
+        <span class="badge">Comportamento</span>
+      </div>
+
+      <div class="card">
+        <div class="name">Interesse</div>
+        <div class="desc">Quais áreas despertam maior atenção.</div>
+        <div class="list">
+          <div class="list-item"><div class="dot"></div>Marketing</div>
+          <div class="list-item"><div class="dot"></div>Branding</div>
+          <div class="list-item"><div class="dot"></div>Comunicação</div>
+          <div class="list-item"><div class="dot"></div>Design</div>
+          <div class="list-item"><div class="dot"></div>Produto</div>
+          <div class="list-item"><div class="dot"></div>Conteúdo / UX-UI</div>
+        </div>
+        <span class="badge">Interesse</span>
+      </div>
+
+      <div class="card">
+        <div class="name">Perfil provável</div>
+        <div class="desc">Classificação inicial sem identificação pessoal.</div>
+        <div class="list">
+          <div class="list-item"><div class="dot"></div>Recrutamento / RH</div>
+          <div class="list-item"><div class="dot"></div>Potencial cliente</div>
+          <div class="list-item"><div class="dot"></div>Potencial parceiro</div>
+          <div class="list-item"><div class="dot"></div>Profissional / Networking</div>
+          <div class="list-item"><div class="dot"></div>Visitante genérico</div>
+        </div>
+        <span class="badge">Perfil</span>
+      </div>
+
+      <div class="card">
+        <div class="name">Eventos</div>
+        <div class="desc">Ações a medir nesta fase.</div>
+        <div class="list">
+          <div class="list-item"><div class="dot"></div>page_view</div>
+          <div class="list-item"><div class="dot"></div>service_view</div>
+          <div class="list-item"><div class="dot"></div>case_view</div>
+          <div class="list-item"><div class="dot"></div>scroll_75</div>
+          <div class="list-item"><div class="dot"></div>whatsapp_click</div>
+          <div class="list-item"><div class="dot"></div>email_click</div>
+          <div class="list-item"><div class="dot"></div>linkedin_click</div>
+          <div class="list-item"><div class="dot"></div>contact_click</div>
+        </div>
+        <span class="badge">Eventos</span>
+      </div>
+
+      <div class="card">
+        <div class="name">UTM</div>
+        <div class="desc">Parâmetros para campanhas futuras.</div>
+        <div class="list">
+          <div class="list-item"><div class="dot"></div>utm_source</div>
+          <div class="list-item"><div class="dot"></div>utm_medium</div>
+          <div class="list-item"><div class="dot"></div>utm_campaign</div>
+          <div class="list-item"><div class="dot"></div>utm_content</div>
+          <div class="list-item"><div class="dot"></div>utm_term</div>
+        </div>
+        <span class="badge">UTM</span>
+      </div>
+    </div>
+
+    <div class="note">
+      Esta página é um guia estrutural para a fase 1. A implementação de tracking e relatórios pode ser adicionada depois, começando por GA4 ou outra ferramenta simples.
+    </div>
+  </div>
+</div>
+</body>
+</html>

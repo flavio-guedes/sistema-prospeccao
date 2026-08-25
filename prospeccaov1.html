@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>v1 · Boulevard de Oportunidades</title>
+<style>
+  :root {
+    --bg:#0b1220;
+    --panel:#0f172a;
+    --line:#1f2d42;
+    --text:#e6e9ef;
+    --muted:#8a93a6;
+    --blue:#3b82f6;
+    --green:#10b981;
+    --amber:#f59e0b;
+    --red:#ef4444;
+    --purple:#7c3aed;
+    --radius:14px;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial;
+    background:
+      radial-gradient(1200px 800px at 20% -10%, rgba(59,130,246,.18), transparent),
+      radial-gradient(1000px 700px at 80% 10%, rgba(124,58,237,.15), transparent),
+      var(--bg);
+    color: var(--text);
+  }
+  .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+  header {
+    padding: 18px 18px 14px; border-bottom: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(15,23,42,.7), rgba(15,23,42,.4));
+    backdrop-filter: blur(10px);
+    position: sticky; top: 0; z-index: 50;
+  }
+  header h1 { font-size: 18px; margin: 0; letter-spacing: .2px; }
+  header p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+  .section { margin-top: 18px; }
+  .section h2 { font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: .14em; margin: 0 0 10px; }
+  .board { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+  .btn {
+    display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 16px; border-radius: var(--radius); font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid transparent; cursor: pointer; transition: transform .08s ease, border-color .2s ease, box-shadow .2s ease;
+    background: linear-gradient(180deg, #2563eb, #1d4ed8); color: #fff; border-color: rgba(96,165,250,.5); box-shadow: 0 10px 30px rgba(37,99,235,.18);
+  }
+  .btn:hover { transform: translateY(-2px); border-color: #60a5fa; box-shadow: 0 14px 36px rgba(37,99,235,.25); }
+  .btn.primary { background: linear-gradient(90deg, var(--blue), var(--purple)); color: #fff; border-color: transparent; }
+  .btn.primary:hover { background: linear-gradient(90deg, #4f8ef7, #8b5cf6); }
+  .btn.random { background: linear-gradient(90deg, var(--green), var(--blue)); color: #fff; border-color: transparent; }
+  .btn.random:hover { background: linear-gradient(90deg, #10b981, #3b82f6); }
+  .query {
+    margin-top: 10px; padding: 12px; border-radius: 10px; background: rgba(15,23,42,.6); border: 1px solid var(--line); color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; line-height: 1.5;
+  }
+  .actions { margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .link {
+    display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 600; text-decoration: none; border: 1px solid transparent;
+  }
+  .link.primary { background: rgba(59,130,246,.14); color: #e8f1ff; border-color: rgba(59,130,246,.35); }
+  .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; }
+  .filter-chip {
+    padding: 6px 10px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255,255,255,0.04); color: var(--text); font-size: 12px; cursor: pointer;
+  }
+  .filter-chip.active { background: linear-gradient(135deg, rgba(230,168,92,.25), rgba(230,168,92,.05)); border-color: transparent; color: #fff; }
+  .summary { font-size: 12px; color: var(--muted); margin-top: 8px; }
+  @media (max-width: 860px) {
+    .board { grid-template-columns: 1fr; }
+    .filter-bar { gap: 6px; }
+    .filter-chip { padding: 5px 8px; font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>v1 · Boulevard de Oportunidades</h1>
+        <p>Clique no cargo para buscar vagas com contato direto no LinkedIn.</p>
+      </div>
+    </header>
+
+    <div class="section">
+      <h2>Filtros</h2>
+      <div class="filter-bar" id="filters">
+        <button class="filter-chip active" data-range="all">Todos</button>
+        <button class="filter-chip" data-range="10m">10 min</button>
+        <button class="filter-chip" data-range="30m">30 min</button>
+        <button class="filter-chip" data-range="1h">1 hora</button>
+        <button class="filter-chip" data-range="2h">2 horas</button>
+        <button class="filter-chip" data-range="3h">3 horas</button>
+        <button class="filter-chip" data-range="5h">5 horas</button>
+        <button class="filter-chip" data-range="1d">1 dia</button>
+        <button class="filter-chip" data-range="2d">2 dias</button>
+      </div>
+      <div class="summary" id="summary">Mostrando todos os cargos.</div>
+    </div>
+
+    <div class="section">
+      <h2>Buscar por cargo</h2>
+      <div class="board" id="board"></div>
+    </div>
+
+    <div class="section">
+      <h2>Query base</h2>
+      <div class="query" id="query-base">
+        ("designer" OR "Diretor de Arte") and ("vaga") AND ("whatsapp" OR "wa.me")
+      </div>
+      <p style="color:var(--muted);font-size:12px;margin-top:8px;">Cada botão abre a busca diretamente no LinkedIn, ordenada por data de publicação.</p>
+    </div>
+
+    <div class="actions">
+      <a class="link primary" href="https://github.com/flavio-guedes/sistema-prospeccao" target="_blank" rel="noopener">Abrir repositório</a>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'painel_oportunidades_v1';
+    const baseUrl = 'https://www.linkedin.com/search/results/content/?keywords=';
+    const suffix = '&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D';
+
+    const queries = [
+      { label: 'Designer', keywords: '%28%20%22designer%22%20OR%20%22Diretor%20de%20Arte%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
+      { label: 'Social Media', keywords: '%28%20%22Social%20Media%22%20OR%20%22Designer%20Gr%C3%A1fico%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
+      { label: 'Art Director', keywords: '%28%20%22Art%20Director%22%20OR%20%22Motion%20Designer%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
+      { label: 'Diretor Criativo', keywords: '%28%20%22Diretor%20Criativo%22%20OR%20%22UX%20Designer%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
+      { label: 'Customer Success', keywords: '%28%20%22Customer%20Success%22%20OR%20%22Account%20Management%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
+      { label: 'Gestão de Projetos', keywords: '%28%20%22Gest%C3%A3o%20de%20Projetos%22%20OR%20%22Project%20Manager%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
+      { label: 'Copy e Redação', keywords: '%28%20%22Copy%22%20OR%20%22Reda%C3%A7%C3%A3o%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
+      { label: 'Community Management', keywords: '%28%20%22Community%20Management%22%20OR%20%22Planejamento%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
+      { label: 'Gestor de Tráfego', keywords: '%28%20%22Gestor%20de%20Tr%C3%A1fego%22%20OR%20%22Head%20de%20Comunica%C3%A7%C3%A3o%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
+      { label: 'Head de Mídia', keywords: '%28%20%22Head%20de%20M%C3%ADdia%22%20OR%20%22Design%20Lead%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
+      { label: 'Brand Manager', keywords: '%28%20%22Brand%20Manager%22%20OR%20%22Planejamento%20Estrat%C3%A9gico%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
+      { label: 'Redator', keywords: '%28%20%22Redator%22%20OR%20%22Copywriter%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
+      { label: 'Social Media', keywords: '%28%20%22Social%20Media%22%20OR%20%22Social%20Media%20Manager%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
+      { label: 'Gestor de Projetos (Marketing)', keywords: '%28%20%22Gestor%20de%20Projetos%22%20%22Marketing%22%20OR%20%22Project%20Manager%22%20%22Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
+      { label: 'Gestor de Projetos (Produto)', keywords: '%28%20%22Gestor%20de%20Projetos%22%20%22Produto%22%20OR%20%22Project%20Manager%22%20%22Produto%22%20OR%20%22Product%20Owner%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' }
+    ];
+
+    function loadClicks() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : {};
+      } catch { return {}; }
+    }
+
+    function saveClick(label) {
+      const clicks = loadClicks();
+      clicks[label] = Date.now();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(clicks));
+    }
+
+    function within(ts, minutes) {
+      return (Date.now() - ts) <= minutes * 60 * 1000;
+    }
+
+    function formatTimeAgo(ts) {
+      if (!ts) return 'não clicado';
+      const diff = Date.now() - ts;
+      const minutes = Math.floor(diff / 60000);
+      if (minutes < 1) return 'agora';
+      if (minutes < 60) return `há ${minutes} min`;
+      const hours = Math.floor(minutes / 60);
+      if (hours < 24) return `há ${hours}h`;
+      const days = Math.floor(hours / 24);
+      return `há ${days}d`;
+    }
+
+    function renderBoard(range) {
+      const board = document.getElementById('board');
+      const summary = document.getElementById('summary');
+      const queryBase = document.getElementById('query-base');
+      const clicks = loadClicks();
+      const map = { '10m': 10, '30m': 30, '1h': 60, '2h': 120, '3h': 180, '5h': 300, '1d': 1440, '2d': 2880 };
+      const minutes = map[range];
+
+      let filtered = queries;
+      if (range && range !== 'all') {
+        filtered = queries.filter(q => {
+          const ts = clicks[q.label];
+          return ts && within(ts, minutes);
+        });
+      }
+
+      const recent = filtered.filter(q => {
+        const ts = clicks[q.label];
+        return ts && (Date.now() - ts) <= 60 * 60 * 1000;
+      }).length;
+
+      summary.textContent = range === 'all'
+        ? `Mostrando todos os cargos.`
+        : `Mostrando ${filtered.length} cargo(s) nos últimos ${range === '10m' ? '10 minutos' : range === '30m' ? '30 minutos' : range}.`;
+
+      board.innerHTML = filtered.map(q => {
+        const url = baseUrl + encodeURIComponent(q.keywords) + suffix;
+        return `<a class="btn" href="${url}" target="_blank" rel="noopener" onclick="saveClick('${q.label}')">${q.label}</a>`;
+      }).join('');
+    }
+
+    function applyTimeFilter(range) {
+      document.querySelectorAll('#filters .filter-chip').forEach(b => b.classList.toggle('primary', b.dataset.range === range));
+      renderBoard(range);
+    }
+
+    document.getElementById('filters').addEventListener('click', (e) => {
+      if (e.target.matches('.filter-chip')) {
+        applyTimeFilter(e.target.dataset.range);
+      }
+    });
+
+    renderBoard('all');
+  </script>
+</body>
+</html>

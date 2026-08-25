@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orçamento — Flávio Guedes</title>
+<style>
+  :root{
+    --void:#050810;
+    --panel:#0A1220;
+    --panel-alt:#0D1830;
+    --panel-line:rgba(99,169,255,0.16);
+    --blue:#2F7FFF;
+    --blue-bright:#6FB1FF;
+    --blue-deep:#0B3B8C;
+    --white:#F3F6FB;
+    --mute:#8996AC;
+    --mute-dim:#5C6880;
+    --green:#3ED598;
+    --gold:#C8A96E;
+    --radius:14px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    background:var(--void);color:var(--white);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .container{max-width:1100px;margin:0 auto;padding:24px;}
+  header{
+    padding:22px 22px 18px;border-bottom:1px solid var(--panel-line);
+    background:linear-gradient(180deg,rgba(10,18,32,.85),rgba(10,18,32,.4));
+    backdrop-filter:blur(10px);position:sticky;top:0;z-index:50;
+  }
+  header h1{font-size:18px;letter-spacing:.2px;}
+  header p{margin:6px 0 0;color:var(--mute);font-size:13px;}
+  .eyebrow{color:var(--blue-bright);font-size:12px;letter-spacing:.22em;text-transform:uppercase;margin-bottom:14px;}
+  .lede{color:var(--mute);font-size:14.5px;max-width:640px;margin-bottom:24px;}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;}
+  .plan{
+    background:var(--panel);border:1px solid var(--panel-line);padding:22px;
+    display:flex;flex-direction:column;gap:12px;position:relative;
+  }
+  .plan h3{font-size:15px;}
+  .plan .price{font-size:28px;font-weight:800;color:var(--blue-bright);letter-spacing:-0.02em;}
+  .plan .price span{font-size:12px;color:var(--mute);font-weight:500;letter-spacing:.08em;}
+  .plan ul{list-style:none;display:flex;flex-direction:column;gap:8px;}
+  .plan li{font-size:13px;color:var(--mute);display:flex;gap:8px;align-items:flex-start;}
+  .plan li::before{content:"•";color:var(--blue);font-weight:900;flex:0 0 auto;}
+  .plan .note{font-size:11.5px;color:var(--mute-dim);margin-top:auto;padding-top:10px;border-top:1px solid var(--panel-line);}
+  .plan .cta{
+    margin-top:auto;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:12px;border-radius:var(--radius);font-size:13px;font-weight:700;text-decoration:none;
+    background:var(--blue);color:var(--void);border:1px solid transparent;
+  }
+  .plan .cta:hover{background:var(--blue-bright);}
+  .plan.recommended{border-color:rgba(111,177,255,.4);box-shadow:0 0 0 1px rgba(111,177,255,.08);}
+  .recommend{
+    position:absolute;top:-1px;right:22px;
+    background:linear-gradient(90deg,var(--blue),var(--blue-bright));
+    color:var(--void);font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+    padding:6px 10px;border-bottom-left-radius:10px;border-bottom-right-radius:10px;
+  }
+
+  .section{margin-top:28px;}
+  .section h2{font-size:14px;color:var(--mute);text-transform:uppercase;letter-spacing:.14em;margin:0 0 12px;}
+  .items{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;}
+  .item{
+    background:var(--panel);border:1px solid var(--panel-line);padding:16px;
+    display:flex;flex-direction:column;gap:6px;
+  }
+  .item .name{font-size:14px;font-weight:600;}
+  .item .desc{font-size:12.5px;color:var(--mute);}
+  .item .val{font-size:13px;color:var(--blue-bright);font-weight:700;margin-top:auto;}
+
+  .faq{border:1px solid var(--panel-line);background:var(--panel);margin-top:14px;}
+  .faq-row{padding:16px 20px;border-bottom:1px solid var(--panel-line);font-size:13.5px;display:flex;gap:14px;flex-wrap:wrap;}
+  .faq-row:last-child{border-bottom:none;}
+  .faq-q{font-weight:600;color:var(--white);min-width:220px;flex:0 0 220px;}
+  .faq-a{color:var(--mute);flex:1;min-width:200px;}
+
+  .cta-block{
+    border:1px solid var(--panel-line);background:linear-gradient(180deg,rgba(47,127,255,.08),rgba(47,127,255,.02));
+    padding:24px;margin-top:28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;
+  }
+  .cta-block h3{font-size:16px;}
+  .cta-block p{color:var(--mute);font-size:13px;margin-top:6px;max-width:560px;}
+  .cta-block a{
+    display:inline-flex;align-items:center;gap:8px;padding:12px 18px;border-radius:var(--radius);
+    background:var(--blue);color:var(--void);font-weight:700;font-size:13.5px;text-decoration:none;border:1px solid transparent;white-space:nowrap;
+  }
+  .cta-block a:hover{background:var(--blue-bright);}
+
+  @media(max-width:860px){
+    .faq-q{min-width:unset;flex:1 1 100%;}
+    .cta-block{flex-direction:column;align-items:flex-start;}
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>Orçamento</h1>
+        <p>Pacotes objetivos, sem surpresa. Ideal para empresas que querem resultado, não só apresentação bonita.</p>
+      </div>
+    </header>
+
+    <div class="section">
+      <div class="eyebrow">Investimento</div>
+      <div class="lede">Cada pacote é um serviço fechado. Se precisar de algo diferente, a gente alinha um escopo avulso.</div>
+      <div class="grid">
+        <div class="plan">
+          <h3>Projeto pontual</h3>
+          <div class="price">R$ 2.500<span>/projeto</span></div>
+          <ul>
+            <li>Briefing e definição de escopo em até 24h</li>
+            <li>Execução com entrega final revisada</li>
+            <li>Até 2 rodadas de ajuste incluídas</li>
+            <li>Arquivos fonte + versões finais</li>
+            <li>Prazo: 5 a 10 dias úteis</li>
+          </ul>
+          <div class="note">Ideal para campanhas, peças pontuais ou ajustes urgentes.</div>
+          <a class="cta" href="https://wa.me/5521999719474?text=Ol%C3%A1%2C%20quero%20um%20projeto%20pontual" target="_blank" rel="noopener">Solicitar orçamento</a>
+        </div>
+
+        <div class="plan recommended">
+          <div class="recommend">Mais escolhido</div>
+          <h3>Parceria mensal</h3>
+          <div class="price">R$ 4.500<span>/mês</span></div>
+          <ul>
+            <li>Conjunto de demandas pré-aprovado por mês</li>
+            <li>Priorização e canal direto de atendimento</li>
+            <li>Revisões ilimitadas dentro do pacote</li>
+            <li>Relatório simples de entregas</li>
+            <li>Prazo médio por item: 2 a 4 dias</li>
+          </ul>
+          <div class="note">Para quem precisa de ritmo contínuo sem contratar um colaborador fixo.</div>
+          <a class="cta" href="https://wa.me/5521999719474?text=Ol%C3%A1%2C%20quero%20uma%20parceria%20mensal" target="_blank" rel="noopener">Solicitar orçamento</a>
+        </div>
+
+        <div class="plan">
+          <h3>Retainer</h3>
+          <div class="price">R$ 7.800<span>/mês</span></div>
+          <ul>
+            <li>Demandas ilimitadas dentro do escopo</li>
+            <li>Planejamento editorial/mensal</li>
+            <li>Atendimento prioritário no mesmo dia</li>
+            <li>Gestão de armazenamento e assets</li>
+            <li>Reunião quinzenal de alinhamento</li>
+          </ul>
+          <div class="note">Ideal para operações que querem previsibilidade total.</div>
+          <a class="cta" href="https://wa.me/5521999719474?text=Ol%C3%A1%2C%20quero%20um%20retainer" target="_blank" rel="noopener">Solicitar orçamento</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Itens avulsos</h2>
+      <div class="items">
+        <div class="item">
+          <div class="name">Post para feed</div>
+          <div class="desc">Peça estática + legenda curta</div>
+          <div class="val">a partir de R$ 350</div>
+        </div>
+        <div class="item">
+          <div class="name">Stories / carrossel</div>
+          <div class="desc">Até 10 frames com identidade visual aplicada</div>
+          <div class="val">a partir de R$ 500</div>
+        </div>
+        <div class="item">
+          <div class="name">Material comercial</div>
+          <div class="desc">Apresentação, proposta, one-page ou PDF</div>
+          <div class="val">a partir de R$ 900</div>
+        </div>
+        <div class="item">
+          <div class="name">Edição de vídeo curto</div>
+          <div class="desc">Corte, legenda, trilha e thumbnail</div>
+          <div class="val">a partir de R$ 700</div>
+        </div>
+        <div class="item">
+          <div class="name">Consultoria</div>
+          <div class="desc">1h de mentoria ou revisão de marca/conteúdo</div>
+          <div class="val">R$ 300/h</div>
+        </div>
+        <div class="item">
+          <div class="name">Landing page</div>
+          <div class="desc">Página simples, responsiva e objetiva</div>
+          <div class="val">a partir de R$ 1.800</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Condições e regras</h2>
+      <div class="faq">
+        <div class="faq-row">
+          <div class="faq-q">Forma de pagamento</div>
+          <div class="faq-a">Pix, cartão ou boleto. Projetos pontuais: 50% para iniciar, 50% na entrega. Mensais: pagamento antecipado no dia escolhido.</div>
+        </div>
+        <div class="faq-row">
+          <div class="faq-q">Prazo de resposta</div>
+          <div class="faq-a">Em até 24h úteis para alinhamento. Após aprovado o escopo, o prazo começa a contar.</div>
+        </div>
+        <div class="faq-row">
+          <div class="faq-q">Cancelamento</div>
+          <div class="faq-a">Projetos pontuais: reembolso parcial até 48h após início. Mensais: cancelamento com aviso de 7 dias.</div>
+        </div>
+        <div class="faq-row">
+          <div class="faq-q">Personalização</div>
+          <div class="faq-a">Os valores são referencia. Se o escopo for maior ou menor, eu monto um orçamento fechado sem surpresa.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cta-block">
+      <div>
+        <h3>Pronto para começar?</h3>
+        <p>Me manda uma mensagem curta com o que você precisa que eu respondo com um orçamento fechado em até algumas horas.</p>
+      </div>
+      <a href="https://wa.me/5521999719474?text=Ol%C3%A1%2C%20quero%20um%20or%C3%A7amento" target="_blank" rel="noopener">Pedir orçamento no WhatsApp</a>
+    </div>
+  </div>
+</body>
+</html>

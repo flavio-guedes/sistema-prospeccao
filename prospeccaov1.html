@@ -41,7 +41,7 @@
   .section h2 { font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: .14em; margin: 0 0 10px; }
   .board { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
   .btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 16px; border-radius: var(--radius); font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid transparent; cursor: pointer; transition: transform .08s ease, border-color .2s ease, box-shadow .2s ease;
+    display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 16px; border-radius: var(--radius); font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid transparent; cursor: pointer; transition: transform .08s ease, border-color .2s ease, box-shadow .2s ease;
     background: linear-gradient(180deg, #2563eb, #1d4ed8); color: #fff; border-color: rgba(96,165,250,.5); box-shadow: 0 10px 30px rgba(37,99,235,.18);
   }
   .btn:hover { transform: translateY(-2px); border-color: #60a5fa; box-shadow: 0 14px 36px rgba(37,99,235,.25); }
@@ -63,7 +63,6 @@
   }
   .filter-chip.active { background: linear-gradient(135deg, rgba(230,168,92,.25), rgba(230,168,92,.05)); border-color: transparent; color: #fff; }
   .summary { font-size: 12px; color: var(--muted); margin-top: 8px; }
-  .job-link { display:inline-flex; align-items:center; gap:8px; padding: 8px 12px; border-radius: 10px; font-size: 12px; font-weight: 600; text-decoration: none; border: 1px solid rgba(16,185,129,.35); background: rgba(16,185,129,.14); color: #e6fff6; }
   @media (max-width: 860px) {
     .board { grid-template-columns: 1fr; }
     .filter-bar { gap: 6px; }
@@ -87,7 +86,7 @@ div[style*="background-color: rgb(135, 135, 135)"] {
     <header>
       <div>
         <h1>v1 · Boulevard de Oportunidades</h1>
-        <p>Clique no cargo para buscar vagas e publicações recentes no LinkedIn.</p>
+        <p>Clique no cargo para buscar vagas com contato direto no LinkedIn.</p>
       </div>
     </header>
 
@@ -109,7 +108,7 @@ div[style*="background-color: rgb(135, 135, 135)"] {
 
     <div class="section">
       <h2>Buscar por cargo</h2>
-      <div class="board" id="board"><a class="btn" href="https://www.linkedin.com/search/results/content/?keywords=%2528%2520%2522designer%2522%20OR%20%2522Diretor%20de%20Arte%2522%20%29%20and%20%28%20%2522vaga%2522%20%29%20AND%20%28%20%2522whatsapp%2522%20OR%20%2522wa.me%2522%20%29&amp;origin=FACETED_SEARCH&amp;sortBy=%5B%22date_posted%22%5D" target="_blank" rel="noopener" onclick="saveClick('Designer')">Designer</a><a class="btn" href="https://www.linkedin.com/search/results/content/?keywords=%2528%2520%2522Social%20Media%2522%20OR%20%2522Designer%20Gr%25C3%25A1fico%2522%20%29%20and%20%28%20%2522vaga%2522%20%29%20AND%20%28%20%2522whatsapp%2522%20OR%20%2522wa.me%2522%20%29&amp;origin=FACETED_SEARCH&amp;sortBy=%5B%22date_posted%22%5D" target="_blank" rel="noopener" onclick="saveClick('Social Media')">Social Media</a><a class="btn" href="https://www.linkedin.com/search/results/content/?keywords=%2528%2520%2522Art%20Director%2522%20OR%20%2522Motion%20Designer%2522%20%29%20and%20%28%20%2522vaga%2522%20%29%20AND%20%28%20%2522whatsapp%2522%20OR%20%2522wa.me%2522%20%29&amp;origin=FACETED_SEARCH&amp;sortBy=%5B%22date_posted%22%5D" target="_blank" rel="noopener" onclick="saveClick('Art Director')">Art Director</a><a class="btn" href="https://www.linkedin.com/search/results/content/?keywords=%2528%2520%2522Diretor%20Criativo%2522%20OR%20%2522UX%20Designer%2522%20%29%20and%20%28%20%2522vaga%2522%20%29%20AND%20%28%20%2522whatsapp%2522%20OR%20%2522wa.me%2522%20%29&amp;origin=FACETED_SEARCH&amp;sortBy=%5B%22date_posted%22%5D" target="_blank" rel="noopener" onclick="saveClick('Diretor Criativo')">Diretor Criativo</a><a class="btn" href="https://www.linkedin.com/search/results/content/?keywords=%2528%2520%2522Customer%20Success%2522%20OR%20%2522Account%20Management%2522%20%29%20and%20%28%20%2522vaga%2522%20%29%20AND%20%28%20%2522whatsapp%2522%20OR%20%2522wa.me%2522%20%29&amp;origin=FACETED_SEARCH&amp;sortBy=%5B%22date_posted%22%5D" target="_blank" rel="noopener" onclick="saveClick('Customer Success')">Customer Success</a><a class="btn" href="https://www.linkedin.com/search/results/content/?keywords=%2528%2520%2522Gest%25C3%25A3o%20de%20Projetos%2522%20OR%20%2522Project%20Manager%2522%20%29%20and%20%28%20%2522vaga%2522%20%29%20AND%20%28%20%2522whatsapp%2522%20OR%20%2522wa.me%2522%20%29&amp;origin=FACETED_SEARCH&amp;sortBy=%5B%22date_posted%22%5D" target="_blank" rel="noopener" onclick="saveClick('Gestão de Projetos')">Gestão de Projetos</a><a class="btn" href="https://www.linkedin.com/search/results/content/?keywords=%2528%2520%2522Copy%2522%20OR%20%2522Reda%25C3%25A7%25C3%25A3o%2522%20%29%20and%20%28%20%2522vaga%2522%20%29%20AND%20%28%20%2522whatsapp%2522%20OR%20%2522wa.me%2522%20%29&amp;origin=FACETED_SEARCH&amp;sortBy=%5B%22date_posted%22%5D" target="_blank" rel="noopener" onclick="saveClick('Copy e Redação')">Copy e Redação</a><a class="btn" href="https://www.linkedin.com/search/results/content/?keywords=%2528%2520%2522Community%20Management%2522%20OR%20%2522Planejamento%2522%20%29%20and%20%28%20%2522vaga%2522%20%29%20AND%20%28%20%2522whatsapp%2522%20OR%20%2522wa.me%2522%20%29&amp;origin=FACETED_SEARCH&amp;sortBy=%5B%22date_posted%22%5D" target="_blank" rel="noopener" onclick="saveClick('Community Management')">Community Management</a><a class="btn" href="https://www.linkedin.com/search/results/content/?keywords=%2528%2520%2522Gestor%20de%20Tr%25C3%25A1fego%2522%20OR%20%2522Head%20de%20Comunica%25C3%25A7%25C3%25A3o%2522%20%29%20and%20%28%20%2522vaga%2522%20%29%20AND%20%28%20%2522whatsapp%2522%20OR%20%2522wa.me%2522%20%29&amp;origin=FACETED_SEARCH&amp;sortBy=%5B%22date_posted%22%5D" target="_blank" rel="noopener" onclick="saveClick('Gestor de Tráfego')">Gestor de Tráfego</a><a class="btn" href="https://www.linkedin.com/search/results/content/?keywords=%2528%2520%2522Head%20de%20M%25C3%25ADdia%2522%20OR%20%2522Design%20Lead%2522%20%29%20and%20%28%20%2522vaga%2522%20%29%20AND%20%28%20%2522whatsapp%2522%20OR%20%2522wa.me%2522%20%29&amp;origin=FACETED_SEARCH&amp;sortBy=%5B%22date_posted%22%5D" target="_blank" rel="noopener" onclick="saveClick('Head de Mídia')">Head de Mídia</a><a class="btn" href="https://www.linkedin.com/search/results/content/?keywords=%2528%2520%2522Brand%20Manager%2522%20OR%20%2522Planejamento%20Estrat%25C3%25A9gico%2522%20%29%20and%20%28%20%2522vaga%2522%20%29%20AND%20%28%20%2522whatsapp%2522%20OR%20%2522wa.me%2522%20%29&amp;origin=FACETED_SEARCH&amp;sortBy=%5B%22date_posted%22%5D" target="_blank" rel="noopener" onclick="saveClick('Brand Manager')">Brand Manager</a><a class="btn" href="https://www.linkedin.com/search/results/content/?keywords=%2528%2520%2522Redator%2522%20OR%20%2522Copywriter%2522%20%29%20and%20%28%20%2522vaga%2522%20%29%20AND%20%28%20%2522whatsapp%2522%20OR%20%2522wa.me%2522%20%29&amp;origin=FACETED_SEARCH&amp;sortBy=%5B%22date_posted%22%5D" target="_blank" rel="noopener" onclick="saveClick('Redator')">Redator</a><a class="btn" href="https://www.linkedin.com/search/results/content/?keywords=%2528%2520%2522Social%20Media%2522%20OR%20%2522Social%20Media%20Manager%2522%20%29%20and%20%28%20%2522vaga%2522%20%29%20AND%20%28%20%2522whatsapp%2522%20OR%20%2522wa.me%2522%20%29&amp;origin=FACETED_SEARCH&amp;sortBy=%5B%22date_posted%22%5D" target="_blank" rel="noopener" onclick="saveClick('Social Media')">Social Media</a><a class="btn" href="https://www.linkedin.com/search/results/content/?keywords=%2528%2520%2522Gestor%20de%20Projetos%2522%20%2522Marketing%2522%20OR%20%2522Project%20Manager%2522%20%2522Marketing%2522%20%29%20and%20%28%20%2522vaga%2522%20%29%20AND%20%28%20%2522whatsapp%2522%20OR%20%2522wa.me%2522%20%29&amp;origin=FACETED_SEARCH&amp;sortBy=%5B%22date_posted%22%5D" target="_blank" rel="noopener" onclick="saveClick('Gestor de Projetos (Marketing)')">Gestor de Projetos (Marketing)</a><a class="btn" href="https://www.linkedin.com/search/results/content/?keywords=%2528%2520%2522Gestor%20de%20Projetos%2522%20%2522Produto%2522%20OR%20%2522Project%20Manager%2522%20%2522Produto%2522%20OR%20%2522Product%20Owner%2522%20%29%20and%20%28%20%2522vaga%2522%20%29%20AND%20%28%20%2522whatsapp%2522%20OR%20%2522wa.me%2522%20%29&amp;origin=FACETED_SEARCH&amp;sortBy=%5B%22date_posted%22%5D" target="_blank" rel="noopener" onclick="saveClick('Gestor de Projetos (Produto)')">Gestor de Projetos (Produto)</a>
+      <div class="board" id="board"></div>
     </div>
 
     <div class="section">
@@ -117,7 +116,7 @@ div[style*="background-color: rgb(135, 135, 135)"] {
       <div class="query" id="query-base">
         ("designer" OR "Diretor de Arte") and ("vaga") AND ("whatsapp" OR "wa.me")
       </div>
-      <p style="color:var(--muted);font-size:12px;margin-top:8px;">Cada cargo abre duas buscas ordenadas por data: conteúdo no LinkedIn e vagas no LinkedIn Jobs.</p>
+      <p style="color:var(--muted);font-size:12px;margin-top:8px;">Cada botão abre a busca diretamente no LinkedIn, ordenada por data de publicação.</p>
     </div>
 
     <div class="actions">
@@ -127,27 +126,25 @@ div[style*="background-color: rgb(135, 135, 135)"] {
 
   <script>
     const STORAGE_KEY = 'painel_oportunidades_v1';
-    const baseContentUrl = 'https://www.linkedin.com/search/results/content/?keywords=';
-    const baseJobsUrl = 'https://www.linkedin.com/jobs/search/?keywords=';
-    const suffixContent = '&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D';
-    const suffixJobs = '&sortBy=DD';
+    const baseUrl = 'https://www.linkedin.com/search/results/content/?keywords=';
+    const suffix = '&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D';
 
     const queries = [
-      { label: 'Designer', keywords: '%28%20%22designer%22%20OR%20%22Diretor%20de%20Arte%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
-      { label: 'Social Media', keywords: '%28%20%22Social%20Media%22%20OR%20%22Designer%20Gr%C3%A1fico%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
-      { label: 'Art Director', keywords: '%28%20%22Art%20Director%22%20OR%20%22Motion%20Designer%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
-      { label: 'Diretor Criativo', keywords: '%28%20%22Diretor%20Criativo%22%20OR%20%22UX%20Designer%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
-      { label: 'Customer Success', keywords: '%28%20%22Customer%20Success%22%20OR%20%22Account%20Management%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
-      { label: 'Gestão de Projetos', keywords: '%28%20%22Gest%C3%A3o%20de%20Projetos%22%20OR%20%22Project%20Manager%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
-      { label: 'Copy e Redação', keywords: '%28%20%22Copy%22%20OR%20%22Reda%C3%A7%C3%A3o%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
-      { label: 'Community Management', keywords: '%28%20%22Community%20Management%22%20OR%20%22Planejamento%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
-      { label: 'Gestor de Tráfego', keywords: '%28%20%22Gestor%20de%20Tr%C3%A1fego%22%20OR%20%22Head%20de%20Comunica%C3%A7%C3%A3o%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
-      { label: 'Head de Mídia', keywords: '%28%20%22Head%20de%20M%C3%ADdia%22%20OR%20%22Design%20Lead%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
-      { label: 'Brand Manager', keywords: '%28%20%22Brand%20Manager%22%20OR%20%22Planejamento%20Estrat%C3%A9gico%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
-      { label: 'Redator', keywords: '%28%20%22Redator%22%20OR%20%22Copywriter%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
-      { label: 'Social Media', keywords: '%28%20%22Social%20Media%22%20OR%20%22Social%20Media%20Manager%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
-      { label: 'Gestor de Projetos (Marketing)', keywords: '%28%20%22Gestor%20de%20Projetos%22%20%22Marketing%22%20OR%20%22Project%20Manager%22%20%22Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
-      { label: 'Gestor de Projetos (Produto)', keywords: '%28%20%22Gestor%20de%20Projetos%22%20%22Produto%22%20OR%20%22Project%20Manager%22%20%22Produto%22%20OR%20%22Product%20Owner%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' }
+      { label: 'Designer', rawQuery: '("designer" OR "Diretor de Arte") and ("vaga") AND ("whatsapp" OR "wa.me")' },
+      { label: 'Social Media', rawQuery: '("Social Media" OR "Designer Gráfico") and ("vaga") AND ("whatsapp" OR "wa.me")' },
+      { label: 'Art Director', rawQuery: '("Art Director" OR "Motion Designer") and ("vaga") AND ("whatsapp" OR "wa.me")' },
+      { label: 'Diretor Criativo', rawQuery: '("Diretor Criativo" OR "UX Designer") and ("vaga") AND ("whatsapp" OR "wa.me")' },
+      { label: 'Customer Success', rawQuery: '("Customer Success" OR "Account Management") and ("vaga") AND ("whatsapp" OR "wa.me")' },
+      { label: 'Gestão de Projetos', rawQuery: '("Gestão de Projetos" OR "Project Manager") and ("vaga") AND ("whatsapp" OR "wa.me")' },
+      { label: 'Copy e Redação', rawQuery: '("Copy" OR "Redação") and ("vaga") AND ("whatsapp" OR "wa.me")' },
+      { label: 'Community Management', rawQuery: '("Community Management" OR "Planejamento") and ("vaga") AND ("whatsapp" OR "wa.me")' },
+      { label: 'Gestor de Tráfego', rawQuery: '("Gestor de Tráfego" OR "Head de Comunicação") and ("vaga") AND ("whatsapp" OR "wa.me")' },
+      { label: 'Head de Mídia', rawQuery: '("Head de Mídia" OR "Design Lead") and ("vaga") AND ("whatsapp" OR "wa.me")' },
+      { label: 'Brand Manager', rawQuery: '("Brand Manager" OR "Planejamento Estratégico") and ("vaga") AND ("whatsapp" OR "wa.me")' },
+      { label: 'Redator', rawQuery: '("Redator" OR "Copywriter") and ("vaga") AND ("whatsapp" OR "wa.me")' },
+      { label: 'Social Media', rawQuery: '("Social Media" OR "Social Media Manager") and ("vaga") AND ("whatsapp" OR "wa.me")' },
+      { label: 'Gestor de Projetos (Marketing)', rawQuery: '("Gestor de Projetos" "Marketing" OR "Project Manager" "Marketing") and ("vaga") AND ("whatsapp" OR "wa.me")' },
+      { label: 'Gestor de Projetos (Produto)', rawQuery: '("Gestor de Projetos" "Produto" OR "Project Manager" "Produto" OR "Product Owner") and ("vaga") AND ("whatsapp" OR "wa.me")' }
     ];
 
     function loadClicks() {
@@ -205,11 +202,8 @@ div[style*="background-color: rgb(135, 135, 135)"] {
         : `Mostrando ${filtered.length} cargo(s) nos últimos ${range === '10m' ? '10 minutos' : range === '30m' ? '30 minutos' : range}.`;
 
       board.innerHTML = filtered.map(q => {
-        const contentUrl = baseContentUrl + encodeURIComponent(q.keywords) + suffixContent;
-        const jobsUrl = baseJobsUrl + encodeURIComponent(q.keywords) + suffixJobs;
-        const label = q.label.replace(/'/g, "\\'");
-        return `<a class="btn" href="${contentUrl}" target="_blank" rel="noopener" onclick="saveClick('${label}')">${q.label} - Conteúdo</a>` +
-          `<a class="btn job-link" href="${jobsUrl}" target="_blank" rel="noopener" onclick="saveClick('${label}')">${q.label} - Vagas</a>`;
+        const url = baseUrl + encodeURI(q.rawQuery) + suffix;
+        return `<a class="btn" href="${url}" target="_blank" rel="noopener" onclick="saveClick('${q.label}')">${q.label}</a>`;
       }).join('');
     }
 

@@ -29,17 +29,11 @@
   }
   .hero-media{
     position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;
-    z-index:0;filter:brightness(1.05);
+    z-index:0;filter:grayscale(0.2) brightness(1.05);
   }
-  .hero-img{
-    position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;
-    z-index:0;filter:brightness(1.05);
-  }
-  video.hero-media{opacity:.45;}
-  .hero-img-fallback{display:none;}
   .hero-overlay{
     position:absolute;inset:0;
-    background:linear-gradient(180deg, rgba(247,245,240,0.5) 0%, rgba(247,245,240,0.78) 50%, var(--bg) 100%);
+    background:linear-gradient(180deg, rgba(247,245,240,0.45) 0%, rgba(247,245,240,0.75) 50%, var(--bg) 100%);
     z-index:1;
   }
   .hero-content{position:relative;z-index:2;max-width:720px;padding:100px 24px 80px;}
@@ -211,6 +205,36 @@
     font-size:12px;color:var(--warm-gray);margin-top:16px;
   }
 
+  /* Sessão premium escura */
+  .premium-section{
+    margin:80px auto;padding:80px 40px;text-align:center;max-width:880px;
+    background:linear-gradient(180deg, rgba(44,44,44,0.92), rgba(20,20,20,0.95));
+    border:1px solid rgba(200,169,110,0.35);border-radius:var(--radius);
+    position:relative;overflow:hidden;
+  }
+  .premium-section::before{
+    content:"";position:absolute;top:-80px;left:50%;transform:translateX(-50%);
+    width:420px;height:240px;
+    background:radial-gradient(circle, rgba(200,169,110,0.12), transparent);
+    pointer-events:none;
+  }
+  .premium-section .section-label{
+    color:var(--gold-light);position:relative;z-index:1;
+  }
+  .premium-section .section-title{
+    color:var(--white);position:relative;z-index:1;
+  }
+  .premium-section .text{
+    color:rgba(243,246,251,0.82);position:relative;z-index:1;
+  }
+  .premium-cta{
+    position:relative;z-index:1;display:inline-flex;align-items:center;gap:10px;
+    padding:16px 32px;border-radius:10px;background:var(--gold);color:var(--graphite);
+    font-weight:700;font-size:14px;text-decoration:none;border:1px solid transparent;margin-top:28px;
+    transition:all 0.2s;
+  }
+  .premium-cta:hover{background:var(--gold-light);transform:translateY(-1px);}
+
   /* Rodapé */
   footer{
     margin-top:24px;padding:32px 24px;text-align:center;
@@ -225,6 +249,7 @@
     .social-proof .nums{gap:32px;}
     .faq{margin:44px 0;}
     .cta-final{margin:44px 0;padding:44px 28px;}
+    .premium-section{margin:56px 16px;padding:56px 24px;}
   }
 </style>
 </head>
@@ -232,10 +257,9 @@
 
   <!-- Hero -->
   <section class="hero">
-    <video class="hero-img" autoplay loop muted playsinline poster="assets/hero-banner.png">
+    <video class="hero-media" autoplay loop muted playsinline poster="assets/hero-banner.png">
       <source src="assets/video-capa.mov" type="video/mp4">
     </video>
-    <img class="hero-img hero-img-fallback" src="assets/hero-banner.png" alt="Banner">
     <div class="hero-overlay"></div>
     <div class="hero-content">
       <div class="hero-badge">Parceria Estratégica</div>
@@ -332,6 +356,20 @@
           <div class="num-val">40%</div>
           <div class="num-lbl">Aumento médio em conversão</div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sessão premium escura -->
+  <section class="content-section">
+    <div class="container">
+      <div class="premium-section">
+        <div class="section-label">Diferencial</div>
+        <h2 class="section-title">IA Agêntica aplicada a marketing, comunicação e operação</h2>
+        <p class="text">
+          Não é só tendência. São agentes e fluxos que reduzem trabalho repetitivo, organizam conteúdo e melhoram a experiência do cliente — com execução próxima.
+        </p>
+        <a href="https://wa.me/5521999719474" class="premium-cta">Falar no WhatsApp</a>
       </div>
     </div>
   </section>

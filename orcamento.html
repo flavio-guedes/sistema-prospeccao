@@ -6,132 +6,219 @@
 <title>Parceria em Comunicação, Marketing e Produto com IA — Flávio Guedes</title>
 <style>
   :root{
-    --bg:#050810; --panel:#0A1220; --panel-line:rgba(99,169,255,0.16);
-    --blue:#2F7FFF; --blue-bright:#6FB1FF; --white:#F3F6FB; --mute:#8996AC; --mute-dim:#5C6880;
-    --green:#3ED598; --radius:14px;
+    --bg:#F7F5F0; --bg-warm:#F0EDE5; --champagne:#E8E0D0;
+    --gold:#C8A96E; --gold-light:#D4B882; --gold-very-light:#E8D9B8;
+    --graphite:#2C2C2C; --graphite-mid:#3D3D3D; --taupe:#6B5E50; --warm-gray:#8A8078;
+    --line:rgba(180,160,120,0.35); --line-dark:rgba(44,44,44,0.1);
+    --white:#FFFFFF;
+    --radius:14px;
   }
   *{margin:0;padding:0;box-sizing:border-box;}
   html{scroll-behavior:smooth;}
-  body{background:var(--bg);color:var(--white);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased;}
-  .container{max-width:900px;margin:0 auto;padding:0 24px;}
+  body{
+    background:var(--bg);color:var(--graphite);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .container{max-width:880px;margin:0 auto;padding:0 32px;}
 
-  /* Hero com imagem */
+  /* Hero */
   .hero{
     position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;
     overflow:hidden;text-align:center;
   }
   .hero-img{
     position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;
-    filter:brightness(0.35);z-index:0;
+    z-index:0;filter:brightness(1.05);
   }
-  .hero-content{position:relative;z-index:2;max-width:720px;padding:80px 24px;}
+  .hero-overlay{
+    position:absolute;inset:0;
+    background:linear-gradient(180deg, rgba(247,245,240,0.5) 0%, rgba(247,245,240,0.78) 50%, var(--bg) 100%);
+    z-index:1;
+  }
+  .hero-content{position:relative;z-index:2;max-width:720px;padding:100px 24px 80px;}
   .hero-badge{
-    display:inline-flex;align-items:center;gap:8px;
-    background:rgba(47,127,255,0.15);border:1px solid rgba(99,169,255,0.35);color:var(--blue-bright);
-    font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;
-    padding:8px 18px;border-radius:100px;margin-bottom:28px;
+    display:inline-flex;align-items:center;gap:10px;
+    color:var(--gold);font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;
+    margin-bottom:32px;
+  }
+  .hero-badge::before, .hero-badge::after{
+    content:"";width:32px;height:1px;background:linear-gradient(90deg, transparent, var(--gold), transparent);
   }
   .hero h1{
-    font-size:clamp(36px,6vw,64px);font-weight:800;line-height:1.05;letter-spacing:-0.03em;
-    margin-bottom:20px;
+    font-size:clamp(34px,5.8vw,62px);font-weight:600;line-height:1.08;letter-spacing:-0.02em;
+    margin-bottom:20px;color:var(--graphite);
+  }
+  .hero h1 em{
+    font-style:normal;
+    background:linear-gradient(90deg, var(--gold), var(--gold-light));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
   }
   .hero-desc{
-    font-size:18px;color:var(--mute);line-height:1.7;max-width:560px;margin:0 auto 40px;font-weight:300;
+    font-size:17px;color:var(--taupe);line-height:1.7;max-width:540px;margin:0 auto 44px;font-weight:400;
+  }
+  .divider{
+    width:60px;height:2px;margin:0 auto 40px;
+    background:linear-gradient(90deg, var(--gold), var(--gold-light));
   }
 
-  /* Formulário de captura */
+  /* Formulário */
   .capture-card{
-    background:rgba(10,18,32,0.85);backdrop-filter:blur(20px);
-    border:1px solid var(--panel-line);border-radius:var(--radius);
-    padding:40px 36px;max-width:520px;margin:0 auto;
-    box-shadow:0 20px 60px rgba(0,0,0,0.4);
+    background:rgba(255,255,255,0.75);backdrop-filter:blur(16px);
+    border:1px solid var(--line);border-radius:var(--radius);
+    padding:44px 40px;max-width:500px;margin:0 auto;
   }
   .capture-card h3{
-    font-size:20px;margin-bottom:8px;text-align:center;
+    font-size:18px;font-weight:600;margin-bottom:6px;text-align:center;color:var(--graphite);
+    letter-spacing:0.01em;
   }
   .capture-card .sub{
-    font-size:14px;color:var(--mute);text-align:center;margin-bottom:28px;
+    font-size:13px;color:var(--warm-gray);text-align:center;margin-bottom:28px;
   }
   .form-group{margin-bottom:16px;text-align:left;}
   .form-group label{
-    display:block;font-size:12px;font-weight:600;letter-spacing:0.08em;
-    text-transform:uppercase;color:var(--mute);margin-bottom:6px;
+    display:block;font-size:11px;font-weight:600;letter-spacing:0.1em;
+    text-transform:uppercase;color:var(--taupe);margin-bottom:6px;
   }
   .form-group input{
-    width:100%;background:var(--bg);border:1px solid var(--panel-line);color:var(--white);
-    padding:14px 16px;font-size:15px;border-radius:10px;transition:border-color 0.2s;
+    width:100%;background:var(--bg);border:1px solid var(--line-dark);color:var(--graphite);
+    padding:14px 16px;font-size:14px;border-radius:10px;transition:border-color 0.2s;
   }
-  .form-group input:focus{outline:none;border-color:var(--blue);}
-  .form-group input::placeholder{color:var(--mute-dim);}
+  .form-group input:focus{outline:none;border-color:var(--gold);}
+  .form-group input::placeholder{color:var(--warm-gray);}
   .form-submit{
-    width:100%;background:var(--blue);color:var(--void);border:none;
-    padding:16px;font-size:15px;font-weight:700;border-radius:10px;cursor:pointer;
-    margin-top:8px;transition:all 0.2s;letter-spacing:0.02em;
+    width:100%;background:var(--graphite);color:var(--white);border:none;
+    padding:16px;font-size:14px;font-weight:600;border-radius:10px;cursor:pointer;
+    margin-top:10px;transition:all 0.2s;letter-spacing:0.02em;
   }
-  .form-submit:hover{background:var(--blue-bright);transform:translateY(-2px);box-shadow:0 10px 30px rgba(47,127,255,0.3);}
+  .form-submit:hover{background:var(--graphite-mid);}
   .form-note{
-    font-size:12px;color:var(--mute-dim);text-align:center;margin-top:14px;line-height:1.5;
+    font-size:12px;color:var(--warm-gray);text-align:center;margin-top:14px;
   }
 
-  /* Benefícios rápidos */
-  .benefits{
-    display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;
-    margin-top:80px;
+  /* Conteúdo */
+  .content-section{
+    margin:80px auto;max-width:720px;
   }
-  .benefit{
-    background:rgba(10,18,32,0.6);backdrop-filter:blur(10px);
-    border:1px solid var(--panel-line);border-radius:var(--radius);padding:24px;text-align:center;
+  .section-label{
+    font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;
+    color:var(--gold);margin-bottom:16px;
   }
-  .benefit-icon{font-size:36px;margin-bottom:12px;}
-  .benefit h4{font-size:15px;margin-bottom:6px;}
-  .benefit p{font-size:13px;color:var(--mute);line-height:1.6;}
+  .section-title{
+    font-size:clamp(24px,3.5vw,36px);font-weight:600;line-height:1.2;letter-spacing:-0.01em;
+    margin-bottom:20px;color:var(--graphite);
+  }
+  .text{
+    font-size:16px;color:var(--taupe);line-height:1.8;margin-bottom:20px;
+  }
+  .gold-line{
+    width:100%;height:1px;margin:36px 0;
+    background:linear-gradient(90deg, transparent, var(--gold), var(--gold-light), transparent);
+  }
 
-  /* Prova social mínima */
+  /* Lista de valores */
+  .values{
+    display:flex;flex-direction:column;gap:20px;margin-top:28px;
+  }
+  .value-item{
+    display:flex;gap:20px;align-items:flex-start;
+    padding-bottom:20px;border-bottom:1px solid var(--line);
+  }
+  .value-item:last-child{border-bottom:none;}
+  .value-num{
+    font-size:14px;font-weight:700;color:var(--gold);min-width:28px;padding-top:2px;
+  }
+  .value-content{flex:1;}
+  .value-content h4{
+    font-size:16px;font-weight:600;margin-bottom:4px;color:var(--graphite);
+  }
+  .value-content p{
+    font-size:14px;color:var(--taupe);line-height:1.7;
+  }
+
+  /* Prova social */
   .social-proof{
-    margin-top:80px;padding:40px 24px;text-align:center;
-    border-top:1px solid var(--panel-line);
+    margin:64px auto;padding:40px 24px;text-align:center;
+    border-top:1px solid var(--line);border-bottom:1px solid var(--line);
   }
   .social-proof .nums{
-    display:flex;justify-content:center;gap:48px;flex-wrap:wrap;margin-top:24px;
+    display:flex;justify-content:center;gap:56px;flex-wrap:wrap;margin-top:24px;
   }
   .social-proof .num{text-align:center;}
-  .social-proof .num-val{font-size:32px;font-weight:800;color:var(--blue-bright);}
-  .social-proof .num-lbl{font-size:12px;color:var(--mute);text-transform:uppercase;letter-spacing:0.08em;margin-top:4px;}
+  .social-proof .num-val{
+    font-size:36px;font-weight:600;color:var(--graphite);
+    background:linear-gradient(180deg, var(--graphite), var(--graphite-mid));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  }
+  .social-proof .num-lbl{
+    font-size:11px;color:var(--warm-gray);text-transform:uppercase;letter-spacing:0.1em;margin-top:6px;
+  }
 
-  /* FAQ compacto */
+  /* FAQ */
   .faq{
-    margin-top:80px;display:flex;flex-direction:column;gap:10px;
+    margin:56px auto;display:flex;flex-direction:column;gap:1px;
+    background:var(--line);border:1px solid var(--line);
   }
   .faq-item{
-    background:rgba(10,18,32,0.6);border:1px solid var(--panel-line);border-radius:var(--radius);
-    overflow:hidden;
+    background:var(--white);overflow:hidden;
   }
   .faq-question{
     padding:18px 22px;font-size:14px;font-weight:600;cursor:pointer;
-    display:flex;justify-content:space-between;align-items:center;
+    display:flex;justify-content:space-between;align-items:center;color:var(--graphite);
+    transition:background 0.2s;
   }
-  .faq-question::after{content:"+";font-size:20px;color:var(--blue-bright);transition:transform 0.3s;}
+  .faq-question:hover{background:rgba(200,169,110,0.06);}
+  .faq-question::after{
+    content:"";width:12px;height:12px;
+    background:linear-gradient(135deg, var(--gold), var(--gold-light));
+    mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'%3E%3Cpath d='M12 5v14M5 12h14'/%3E%3C/svg%3E") center/contain no-repeat;
+    -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'%3E%3Cpath d='M12 5v14M5 12h14'/%3E%3C/svg%3E") center/contain no-repeat;
+    transition:transform 0.3s;
+  }
   .faq-item.open .faq-question::after{transform:rotate(45deg);}
   .faq-answer{
     max-height:0;overflow:hidden;transition:max-height 0.3s ease;padding:0 22px;
   }
-  .faq-item.open .faq-answer{max-height:250px;padding:0 22px 18px;}
-  .faq-answer p{font-size:13px;color:var(--mute);line-height:1.7;}
+  .faq-item.open .faq-answer{max-height:220px;padding:0 22px 18px;}
+  .faq-answer p{font-size:14px;color:var(--taupe);line-height:1.7;}
+
+  /* CTA Final */
+  .cta-final{
+    margin:56px auto 32px;padding:56px 40px;text-align:center;max-width:720px;
+    background:var(--white);border:1px solid var(--line);border-radius:var(--radius);
+    position:relative;overflow:hidden;
+  }
+  .cta-final::before{
+    content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);
+    width:200px;height:2px;
+    background:linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .cta-final h2{font-size:24px;font-weight:600;margin-bottom:12px;color:var(--graphite);}
+  .cta-final p{font-size:15px;color:var(--taupe);margin-bottom:28px;line-height:1.7;}
+  .cta-final .btn{
+    display:inline-flex;align-items:center;gap:10px;padding:16px 32px;border-radius:10px;
+    background:var(--graphite);color:var(--white);font-weight:600;font-size:14px;
+    text-decoration:none;border:1px solid transparent;transition:all 0.2s;
+  }
+  .cta-final .btn:hover{background:var(--graphite-mid);}
+  .cta-final .guarantee{
+    font-size:12px;color:var(--warm-gray);margin-top:16px;
+  }
 
   /* Rodapé */
   footer{
-    margin-top:80px;padding:32px 24px;text-align:center;
-    border-top:1px solid var(--panel-line);color:var(--mute-dim);font-size:13px;
+    margin-top:24px;padding:32px 24px;text-align:center;
+    border-top:1px solid var(--line);color:var(--warm-gray);font-size:12px;
   }
 
   @media(max-width:768px){
     .hero{min-height:auto;padding-top:100px;padding-bottom:60px;}
-    .capture-card{padding:28px 22px;}
-    .benefits{margin-top:48px;}
-    .social-proof{margin-top:48px;}
+    .capture-card{padding:32px 24px;}
+    .content-section{margin:56px 0;}
+    .social-proof{margin:48px 0;}
     .social-proof .nums{gap:32px;}
-    .faq{margin-top:48px;}
-    footer{margin-top:48px;}
+    .faq{margin:44px 0;}
+    .cta-final{margin:44px 0;padding:44px 28px;}
   }
 </style>
 </head>
@@ -140,21 +227,23 @@
   <!-- Hero -->
   <section class="hero">
     <img class="hero-img" src="assets/hero-banner.png" alt="Banner">
+    <div class="hero-overlay"></div>
     <div class="hero-content">
       <div class="hero-badge">Parceria Estratégica</div>
-      <h1>Comunicação, Marketing e Produto com IA aplicada</h1>
+      <h1>Comunicação, Marketing e Produto com <em>IA aplicada</em></h1>
       <p class="hero-desc">
-        Um parceiro para conectar estratégia, criação e tecnologia — e transformar IA em resultado real, não só em buzzword.
+        Um parceiro para conectar estratégia, criação e tecnologia — e transformar IA em resultado real.
       </p>
+      <div class="divider"></div>
 
-      <!-- Formulário de captura -->
+      <!-- Formulário -->
       <div class="capture-card">
-        <h3>Peça sua proposta de parceria</h3>
-        <p class="sub">Respondo em até 24h com um escopo fechado para o seu momento</p>
+        <h3>Peça sua proposta</h3>
+        <p class="sub">Respondo em até 24h com um escopo fechado</p>
         <form id="leadForm">
           <div class="form-group">
-            <label for="nome">Seu nome</label>
-            <input type="text" id="nome" name="nome" placeholder="Ex.: João Silva" required>
+            <label for="nome">Nome</label>
+            <input type="text" id="nome" name="nome" placeholder="Seu nome" required>
           </div>
           <div class="form-group">
             <label for="email">E-mail</label>
@@ -164,77 +253,118 @@
             <label for="whatsapp">WhatsApp</label>
             <input type="tel" id="whatsapp" name="whatsapp" placeholder="(11) 99999-9999" required>
           </div>
-          <button type="submit" class="form-submit">Quero minha proposta →</button>
-          <p class="form-note">✓ Sem compromisso • ✓ Resposta em até 24h • ✓ Orçamento detalhado</p>
+          <button type="submit" class="form-submit">Enviar e abrir conversa →</button>
+          <p class="form-note">Sem compromisso • Resposta em até 24h • Orçamento detalhado</p>
         </form>
       </div>
+    </div>
+  </section>
 
-      <!-- Benefícios rápidos -->
-      <div class="benefits">
-        <div class="benefit">
-          <div class="benefit-icon">🧠</div>
-          <h4>IA aplicada</h4>
-          <p>Agentes e fluxos de IA que resolvem gargalos reais de comunicação, marketing e produto</p>
-        </div>
-        <div class="benefit">
-          <div class="benefit-icon">📣</div>
-          <h4>Comunicação</h4>
-          <p>Narrativa consistente, alinhamento entre áreas e materiais que conversam com sua audiência</p>
-        </div>
-        <div class="benefit">
-          <div class="benefit-icon">📈</div>
-          <h4>Marketing</h4>
-          <p>Estratégia, criativos, mídia e conteúdo conectados a dados e resultados</p>
-        </div>
-        <div class="benefit">
-          <div class="benefit-icon">🚀</div>
-          <h4>Produto</h4>
-          <p>Experiência, priorização e comunicação de produto sem ruído entre time, negócio e usuário</p>
-        </div>
-      </div>
+  <!-- Proposta -->
+  <section class="content-section">
+    <div class="container">
+      <div class="section-label">A Proposta</div>
+      <h2 class="section-title">Parceria em comunicação, marketing e produto</h2>
+      <p class="text">
+        Atuo como braço direito de times que precisam de ritmo, clareza e execução — sem ruído entre estratégia, criação e operação.
+      </p>
+      <p class="text">
+        Com IA aplicada, reduzo trabalho repetitivo, organizo conteúdo e melhoro a experiência do cliente em canais, produto e narrativa.
+      </p>
+      <div class="gold-line"></div>
 
-      <!-- Prova social -->
-      <div class="social-proof">
-        <div class="nums">
-          <div class="num">
-            <div class="num-val">10+</div>
-            <div class="num-lbl">Anos de experiência</div>
-          </div>
-          <div class="num">
-            <div class="num-val">150+</div>
-            <div class="num-lbl">Projetos entregues</div>
-          </div>
-          <div class="num">
-            <div class="num-val">40%</div>
-            <div class="num-lbl">Aumento médio em conversão</div>
+      <div class="values">
+        <div class="value-item">
+          <div class="value-num">01</div>
+          <div class="value-content">
+            <h4>Comunicação</h4>
+            <p>Narrativa consistente, alinhamento entre áreas e materiais que conectam com sua audiência.</p>
           </div>
         </div>
-      </div>
-
-      <!-- FAQ compacto -->
-      <div class="faq">
-        <div class="faq-item">
-          <div class="faq-question">Como funciona a parceria?</div>
-          <div class="faq-answer"><p>Escopo fechado por período, com reuniões de alinhamento e entregas contínuas. Você tem previsibilidade e eu tenho autonomia para executar.</p></div>
+        <div class="value-item">
+          <div class="value-num">02</div>
+          <div class="value-content">
+            <h4>Marketing</h4>
+            <p>Estratégia, criativos, mídia e conteúdo ligados a dados e resultados — não só aparência.</p>
+          </div>
         </div>
-        <div class="faq-item">
-          <div class="faq-question">IA é só tendência ou tem aplicação real?</div>
-          <div class="faq-answer"><p>IA Agêntica aplicada a marketing, comunicação e operação: agentes que reduzem trabalho repetitivo, organizam conteúdo e melhoram a experiência do cliente.</p></div>
+        <div class="value-item">
+          <div class="value-num">03</div>
+          <div class="value-content">
+            <h4>Produto</h4>
+            <p>Experiência, priorização e comunicação sem ruído entre time, negócio e usuário.</p>
+          </div>
         </div>
-        <div class="faq-item">
-          <div class="faq-question">Você atua como freelancer ou parceiro fixo?</div>
-          <div class="faq-answer"><p>Ambos. Posso entrar em projetos pontuais ou como braço direito de marketing/comunicação/produto, com ritmo contínuo.</p></div>
-        </div>
-        <div class="faq-item">
-          <div class="faq-question">Qual o investimento?</div>
-          <div class="faq-answer"><p>Depende do escopo. Projetos pontuais a partir de R$ 2.500; parcerias mensais a partir de R$ 4.500/mês; retainer a partir de R$ 7.800/mês.</p></div>
+        <div class="value-item">
+          <div class="value-num">04</div>
+          <div class="value-content">
+            <h4>IA aplicada</h4>
+            <p>Agentes e fluxos que reduzem trabalho repetitivo, organizam conteúdo e escalam operação.</p>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
+  <!-- Prova social -->
+  <section class="social-proof">
+    <div class="container">
+      <div class="section-label">Resultados</div>
+      <div class="nums">
+        <div class="num">
+          <div class="num-val">10+</div>
+          <div class="num-lbl">Anos de experiência</div>
+        </div>
+        <div class="num">
+          <div class="num-val">150+</div>
+          <div class="num-lbl">Projetos entregues</div>
+        </div>
+        <div class="num">
+          <div class="num-val">40%</div>
+          <div class="num-lbl">Aumento médio em conversão</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="content-section">
+    <div class="container">
+      <div class="section-label">Dúvidas</div>
+      <h2 class="section-title">Perguntas frequentes</h2>
+      <div class="faq">
+        <div class="faq-item">
+          <div class="faq-question">Como funciona a parceria?</div>
+          <div class="faq-answer"><p>Escopo fechado por período, com reuniões de alinhamento e entregas contínuas. Você tem previsibilidade.</p></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question">IA é só tendência?</div>
+          <div class="faq-answer"><p>Não. IA Agêntica aplicada a marketing, comunicação e operação: agentes que reduzem trabalho repetitivo.</p></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question">Qual o investimento?</div>
+          <div class="faq-answer"><p>Pontuais a partir de R$ 2.500; mensais a partir de R$ 4.500/mês; retainer a partir de R$ 7.800/mês.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Final -->
+  <section>
+    <div class="container">
+      <div class="cta-final">
+        <h2>Pronto para conversar?</h2>
+        <p>Envie seus dados e eu retorno com uma proposta personalizada em até 24h.</p>
+        <a href="https://wa.me/5521999719474" class="btn">Falar no WhatsApp</a>
+        <div class="guarantee">Sem compromisso • Resposta em até 24h</div>
+      </div>
+    </div>
+  </section>
+
   <footer>
-    <p>Flávio Guedes — Comunicação, Marketing e Produto com IA • 2026</p>
+    <div class="container">
+      <p>Flávio Guedes — Comunicação, Marketing e Produto com IA • 2026</p>
+    </div>
   </footer>
 
   <script>
@@ -261,7 +391,7 @@
       }
 
       const texto = encodeURIComponent(
-        `Olá, sou ${nome}. Meu e-mail: ${email}. WhatsApp: ${whatsapp}. Vi a página de parceria e quero conversar sobre comunicação, marketing e produto com IA aplicada.`
+        `Olá, sou ${nome}. E-mail: ${email}. WhatsApp: ${whatsapp}. Quero uma proposta de parceria em comunicação, marketing e produto com IA.`
       );
       const wa = `https://wa.me/5521999719474?text=${texto}`;
 
@@ -272,7 +402,8 @@
       setTimeout(() => {
         window.open(wa, '_blank');
         btn.textContent = '✓ Mensagem enviada!';
-        btn.style.background = 'var(--green)';
+        btn.style.background = 'var(--gold)';
+        btn.style.color = 'var(--white)';
       }, 600);
     });
 
